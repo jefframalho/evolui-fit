@@ -49,3 +49,19 @@ O APK precisa de internet. A tela permanece ligada enquanto o app está aberto; 
 ## Limites
 
 Sem fotos, modo offline ou área de personal nesta versão. A verificação de e-mail pode ser enviada, mas não bloqueia o uso. A publicação do código não comprova que as regras e os provedores estão configurados no Firebase real: valide com duas contas antes de divulgar.
+
+## Agenda semanal
+
+A agenda abre pelo menu ou pelo atalho no painel. Permite agendar, editar, concluir/reabrir e excluir compromissos, navegar de segunda a domingo, definir horário e duração e vincular uma ficha de treino ao cronômetro. Não envia notificações nem repete os eventos automaticamente. No celular, Evolução, Hábitos, Histórico e Metas ficam em **Mais**.
+
+**Ativação necessária:** publique a versão atual de `firestore.rules` no console Firebase. A agenda acrescenta o tipo `schedule` e permite editar apenas esses registros, mantendo o acesso restrito ao próprio usuário. As regras antigas recusam novos agendamentos; o sistema mostra o erro sem apagar os outros dados. A publicação pelo GitHub Pages não atualiza as regras do Firebase.
+
+## Portal do instrutor e vínculo do aluno
+
+O portal profissional fica em **#instrutor**, com entrada e cadastro separados visualmente. Usa o Firebase Authentication da mesma aplicação. Cada conta pode criar seu próprio espaço profissional, isolado pelo UID; entrar como instrutor não concede acesso global nem aos registros pessoais dos alunos.
+
+No portal, cadastre o aluno com nome e e-mail, monte fichas completas (exercícios, séries, repetições, carga, descanso, cadência e orientações) e registre uma avaliação mensal (peso, medidas, percentual de gordura e observações). Uma avaliação é mantida por mês, com opção de edição. A variação exibida compara medidas efetivamente registradas.
+
+Para o aluno acessar a prescrição no próprio login, gere um código de convite e compartilhe-o por sua conta. O aluno cria sua própria senha, verifica o e-mail do mesmo endereço cadastrado e aceita o convite em **Meu instrutor**. O código expira após 7 dias; é necessário um vínculo explícito. O aluno pode revogar o vínculo. O aplicativo não envia convites por mensagem automaticamente.
+
+As novas regras de `firestore.rules` devem ser publicadas no Firebase para ativar tanto o portal profissional quanto a agenda. Os testes do emulador verificam isolamento entre instrutores, bloqueio de e-mail não verificado, vínculo por convite, leitura das fichas e avaliações, bloqueio de acesso aos registros pessoais e revogação.

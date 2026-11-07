@@ -2,13 +2,14 @@ import type {User} from 'firebase/auth';
 import type {Firestore} from 'firebase/firestore';
 export type FitnessEntry={id:string;kind:string;date:string;data:Record<string,any>;createdAt?:number};
 export type RecordDraft=Pick<FitnessEntry,'kind'|'date'|'data'>;
-export interface FitnessBackend{list():Promise<FitnessEntry[]>;save(draft:RecordDraft):Promise<void>;remove(id:string):Promise<void>}
+export interface FitnessBackend{list():Promise<FitnessEntry[]>;save(draft:RecordDraft):Promise<void>;remove(id:string):Promise<void>;updateSchedule?(id:string,draft:RecordDraft):Promise<void>}
 export function firebaseBackend(db:Firestore,user:User):FitnessBackend{
  const uid=user.uid;
  async function collectionRef(){const {collection}=await import('firebase/firestore');return collection(db,'users',uid,'records')}
  return {
   async list(){const {getDocs,query,orderBy}=await import('firebase/firestore');const snapshot=await getDocs(query(await collectionRef(),orderBy('date','desc')));return snapshot.docs.map(doc=>{const row=doc.data();return {id:doc.id,kind:row.kind,date:row.date,data:row.data,createdAt:row.createdAt?.toMillis?.()||0}}).sort((a,b)=>b.date.localeCompare(a.date)||(b.createdAt-a.createdAt))},
   async save(draft){const {addDoc,serverTimestamp}=await import('firebase/firestore');const {RecordDraftSchema}=await import('./record-validation');const clean=RecordDraftSchema.parse(draft);await addDoc(await collectionRef(),{...clean,createdAt:serverTimestamp()})},
+  async updateSchedule(id,draft){if(!id||id.includes('/')||draft.kind!=='schedule')throw Error('Compromisso inválido.');const {RecordDraftSchema}=await import('./record-validation');const clean=RecordDraftSchema.parse(draft);const {updateDoc,doc}=await import('firebase/firestore');await updateDoc(doc(db,'users',uid,'records',id),{date:clean.date,data:clean.data})},
   async remove(id){if(!id||id.includes('/'))throw Error('Registro inválido.');const {deleteDoc,doc}=await import('firebase/firestore');await deleteDoc(doc(db,'users',uid,'records',id))}
  }
 }

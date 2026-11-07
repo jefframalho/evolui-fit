@@ -1,0 +1,36 @@
+import {initializeTestEnvironment,assertFails,assertSucceeds} from '@firebase/rules-unit-testing';
+import {doc,setDoc,getDoc,collection,getDocs,writeBatch,updateDoc,serverTimestamp,Timestamp} from 'firebase/firestore';
+import fs from 'node:fs';
+const env=await initializeTestEnvironment({projectId:'demo-evolui-fit',firestore:{host:'127.0.0.1',port:8080,rules:fs.readFileSync('firestore.rules','utf8')}});
+try{
+const coach=env.authenticatedContext('coach-a',{email:'coach@example.com',email_verified:true}).firestore();
+const other=env.authenticatedContext('coach-b',{email:'other@example.com',email_verified:true}).firestore();
+const learner=env.authenticatedContext('learner-a',{email:'student@example.com',email_verified:true}).firestore();
+const wrong=env.authenticatedContext('learner-b',{email:'wrong@example.com',email_verified:true}).firestore();
+const unverified=env.authenticatedContext('unverified',{email:'student@example.com',email_verified:false}).firestore();
+const anon=env.unauthenticatedContext().firestore();
+const studentPath='instructors/coach-a/students/student-a';
+await assertSucceeds(setDoc(doc(coach,'instructors/coach-a'),{name:'Instrutor teste',email:'coach@example.com',createdAt:serverTimestamp()}));
+await assertSucceeds(setDoc(doc(coach,studentPath),{name:'Aluno teste',email:'student@example.com',phone:'',goal:'Meta de teste',notes:'',learnerUid:null,inviteCode:'',createdAt:serverTimestamp()}));
+await assertFails(getDoc(doc(other,studentPath)));await assertFails(getDoc(doc(learner,studentPath)));await assertFails(getDoc(doc(anon,studentPath)));
+await assertFails(updateDoc(doc(coach,studentPath),{learnerUid:'learner-a'}));
+await assertSucceeds(setDoc(doc(coach,studentPath+'/plans/plan-a'),{title:'Ficha A',days:'Segunda',notes:'',exercises:[{name:'Exercício teste',sets:3,reps:'10–12',load:10,rest:60,tempo:'2–1–2',notes:''}],updatedAt:serverTimestamp()}));
+await assertSucceeds(setDoc(doc(coach,studentPath+'/evaluations/2026-11'),{month:'2026-11',weight:80,waist:90,notes:'Avaliação teste',updatedAt:serverTimestamp()}));
+await assertFails(getDocs(collection(other,studentPath+'/plans')));await assertFails(getDoc(doc(learner,studentPath+'/plans/plan-a')));
+const code='abcdefghijklmnopqrst';const batch=writeBatch(coach);batch.set(doc(coach,'instructorInvites',code),{instructorUid:'coach-a',studentId:'student-a',email:'student@example.com',instructorName:'Instrutor teste',expiresAt:Timestamp.fromMillis(Date.now()+3600000)});batch.update(doc(coach,studentPath),{inviteCode:code});await assertSucceeds(batch.commit());
+await assertSucceeds(getDoc(doc(learner,'instructorInvites',code)));await assertFails(getDoc(doc(wrong,'instructorInvites',code)));await assertFails(getDoc(doc(unverified,'instructorInvites',code)));await assertFails(getDocs(collection(learner,'instructorInvites')));
+await assertFails(updateDoc(doc(wrong,studentPath),{learnerUid:'learner-b'}));await assertFails(updateDoc(doc(unverified,studentPath),{learnerUid:'unverified'}));
+const linkData={instructorUid:'coach-a',studentId:'student-a',instructorName:'Instrutor teste',createdAt:serverTimestamp()};
+await assertFails(setDoc(doc(wrong,'users/learner-b/instructorLinks/coach-a_student-a'),linkData));
+const claim=writeBatch(learner);claim.update(doc(learner,studentPath),{learnerUid:'learner-a'});claim.set(doc(learner,'users/learner-a/instructorLinks/coach-a_student-a'),linkData);await assertSucceeds(claim.commit());
+await assertSucceeds(getDoc(doc(learner,studentPath)));await assertSucceeds(getDocs(collection(learner,studentPath+'/plans')));await assertSucceeds(getDoc(doc(learner,studentPath+'/evaluations/2026-11')));
+await assertFails(updateDoc(doc(learner,studentPath),{name:'Alteração proibida'}));
+await assertFails(updateDoc(doc(learner,studentPath+'/plans/plan-a'),{title:'Inválido',updatedAt:serverTimestamp()}));
+await assertFails(setDoc(doc(other,studentPath+'/evaluations/2026-12'),{month:'2026-12',weight:80,notes:'',updatedAt:serverTimestamp()}));
+await assertFails(setDoc(doc(coach,studentPath+'/evaluations/2026-12'),{month:'2026-12',weight:-1,notes:'',updatedAt:serverTimestamp()}));
+await assertSucceeds(setDoc(doc(learner,'users/learner-a/records/private'),{kind:'measure',date:'2026-11-07',data:{weight:80},createdAt:serverTimestamp()}));
+await assertFails(getDoc(doc(coach,'users/learner-a/records/private')));
+const unlink=writeBatch(learner);unlink.update(doc(learner,studentPath),{learnerUid:null});unlink.delete(doc(learner,'users/learner-a/instructorLinks/coach-a_student-a'));await assertSucceeds(unlink.commit());
+await assertFails(getDoc(doc(learner,studentPath+'/plans/plan-a')));await assertSucceeds(getDoc(doc(learner,'users/learner-a/records/private')));
+console.log('PASS: turma privada, fichas, avaliações, convite com e-mail verificado, vínculo atômico, isolamento e revogação.');
+}finally{await env.cleanup()}

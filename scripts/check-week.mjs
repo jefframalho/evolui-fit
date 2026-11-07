@@ -1,0 +1,3 @@
+import ts from 'typescript';import fs from 'node:fs';import vm from 'node:vm';import assert from 'node:assert/strict';
+const c={};vm.createContext(c);vm.runInContext(ts.transpile(fs.readFileSync('lib/week-calendar.ts','utf8').replace(/export /g,''),{target:ts.ScriptTarget.ES2022}),c);
+assert.equal(c.mondayOf('2026-11-08'),'2026-11-02');assert.equal(c.mondayOf('2026-11-09'),'2026-11-09');assert.equal(c.addDays('2026-12-31',1),'2027-01-01');assert.equal(c.addDays('2028-02-28',1),'2028-02-29');assert.equal(c.weekDays('2027-01-01')[6],'2027-01-03');assert.equal(c.weekDays('2026-11-07').length,7);console.log('PASS: agenda de segunda a domingo, mudança de ano e ano bissexto.');

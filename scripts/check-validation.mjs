@@ -17,3 +17,9 @@ assert.equal(parse('workout',{name:'QA',duration:'30',exercises:[{name:'Supino',
 assert.equal(parse('workout',{name:'QA',duration:30,exercises:[]}).success,false);
 assert.equal(parse('measure',{weight:100},'2026-02-31').success,false);
 console.log('PASS: validação de treinos, medidas, hábitos, metas, datas e conversão numérica.');
+
+assert.equal(parse('schedule',{title:'Pernas',time:'18:30',duration:'60',type:'Treino',status:'planned'}).success,true);
+assert.equal(parse('schedule',{title:'Pernas',time:'25:30',duration:60,type:'Treino',status:'planned'}).success,false);
+assert.equal(parse('schedule',{title:'',time:'18:30',duration:60,type:'Treino',status:'planned'}).success,false);
+assert.equal(parse('schedule',{title:'Descanso',time:'18:30',duration:0,type:'Descanso',status:'planned'}).success,false);
+console.log('PASS: validação da agenda semanal e horários.');

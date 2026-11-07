@@ -9,6 +9,7 @@ export default function WorkoutTimer({workout,initialIndex=0}:{workout:FitnessEn
  const audio=useRef<AudioContext|null>(null),announced=useRef(false);
  const exercises=workout?.data.exercises||[],exercise=exercises[index],name=exercise?.name||manualName,remaining=timerValue(mode,baseMs,startedAt,now),running=startedAt!==null;
  useEffect(()=>{setIndex(initialIndex);setMode('exercise');setBaseMs(0);setStartedAt(null);setCompleted(0);setNotice('');announced.current=false},[workout?.id,initialIndex]);
+ useEffect(()=>{if(exercise?.rest)setRestSeconds(Number(exercise.rest))},[workout?.id,index]);
  useEffect(()=>{if(!running)return;const tick=()=>setNow(Date.now());const interval=setInterval(tick,150);document.addEventListener('visibilitychange',tick);return()=>{clearInterval(interval);document.removeEventListener('visibilitychange',tick)}},[running]);
  useEffect(()=>{if(mode==='rest'&&running&&remaining<=0&&!announced.current){announced.current=true;setStartedAt(null);setBaseMs(0);setNotice('Intervalo concluído. Pronto para a próxima série!');notify()}},[remaining,mode,running]);
  useEffect(()=>()=>{audio.current?.close().catch(()=>{})},[]);
