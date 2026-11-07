@@ -65,3 +65,19 @@ No portal, cadastre o aluno com nome e e-mail, monte fichas completas (exercíci
 Para o aluno acessar a prescrição no próprio login, gere um código de convite e compartilhe-o por sua conta. O aluno cria sua própria senha, verifica o e-mail do mesmo endereço cadastrado e aceita o convite em **Meu instrutor**. O código expira após 7 dias; é necessário um vínculo explícito. O aluno pode revogar o vínculo. O aplicativo não envia convites por mensagem automaticamente.
 
 As novas regras de `firestore.rules` devem ser publicadas no Firebase para ativar tanto o portal profissional quanto a agenda. Os testes do emulador verificam isolamento entre instrutores, bloqueio de e-mail não verificado, vínculo por convite, leitura das fichas e avaliações, bloqueio de acesso aos registros pessoais e revogação.
+
+## Mensalidade profissional — R$ 100
+
+A gestão de alunos, fichas, convites e avaliações passa a exigir assinatura profissional de R$100 por mês, sem período gratuito e sem carência. O portal pessoal dos alunos não recebe essa cobrança. A validade é verificada tanto na interface quanto nas regras do Firestore com `request.time`; não depende de um cron job ou do relógio do aparelho. No vencimento ou bloqueio administrativo, as operações profissionais são recusadas e os dados são preservados. As fichas do acompanhamento do instrutor também exigem que a assinatura dele esteja ativa.
+
+O modelo é **Pix com confirmação manual**, como o utilizado no Clinix. Não há cobrança no cartão, débito automático, consulta bancária automática ou webhook de confirmação. O profissional paga no banco e envia um aviso. Somente o administrador confere o extrato e confirma o recebimento; o aviso sozinho nunca libera a assinatura. O pagamento registrado acrescenta um mês de calendário a partir de agora ou do vencimento futuro, preservando dias já pagos. O identificador bancário gera uma chave de idempotência para evitar registrar o mesmo pagamento mais de uma vez. O histórico de aprovações é imutável pelo aplicativo.
+
+### Ativação pelo proprietário
+
+1. Publique a versão atual de `firestore.rules` no projeto `evoluir-a1037`. A publicação no GitHub Pages não atualiza as regras. Sem essa publicação, o bloqueio no banco e as novas coleções de cobrança ainda não estarão ativos.
+2. Entre em **#admin** com a conta **jeffersonramalhopb@gmail.com** e verifique o e-mail. A autorização administrativa exige o e-mail verificado nas regras, e não um campo de perfil editável.
+3. Em **Configurar Pix**, preencha e salve a chave de recebimento, nome, cidade e suporte opcional. Nenhuma chave Pix do Clinix foi copiada para este repositório. A chave cadastrada será apresentada aos profissionais no pagamento. Use CPF/CNPJ sem pontuação e telefone no formato internacional com +55.
+4. Os profissionais aparecem no painel quando abrirem a área profissional. Para liberar, confira o crédito de R$100 no extrato e registre o identificador único da transação.
+5. Teste com uma conta profissional distinta da administradora, que é isenta da mensalidade. Confira bloqueio antes do pagamento, liberação após sua confirmação e bloqueio no vencimento. Os testes automáticos utilizam somente dados fictícios no emulador.
+
+O painel administrativo não concede acesso aos prontuários/medidas dos alunos de outros profissionais; ele controla os dados de assinatura e cobrança. A confirmação no banco e a instalação do APK não foram automatizadas.

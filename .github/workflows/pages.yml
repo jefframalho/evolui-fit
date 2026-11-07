@@ -29,7 +29,8 @@ jobs:
       - run: pnpm run test:timer
       - run: pnpm run test:week
       - run: pnpm run test:coach-validation
-      - run: pnpm exec firebase emulators:exec --only firestore --project demo-evolui-fit 'node scripts/check-firestore.mjs && node scripts/check-instructor.mjs'
+      - run: pnpm run test:billing-math
+      - run: pnpm exec firebase emulators:exec --only firestore --project demo-evolui-fit 'node scripts/check-firestore.mjs && node scripts/check-instructor.mjs && node scripts/check-billing.mjs'
       - run: node scripts/check-firebase-config.mjs
       - run: pnpm run build:web
       - uses: actions/upload-pages-artifact@v3

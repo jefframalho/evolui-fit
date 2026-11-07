@@ -10,6 +10,7 @@ const wrong=env.authenticatedContext('learner-b',{email:'wrong@example.com',emai
 const unverified=env.authenticatedContext('unverified',{email:'student@example.com',email_verified:false}).firestore();
 const anon=env.unauthenticatedContext().firestore();
 const studentPath='instructors/coach-a/students/student-a';
+await env.withSecurityRulesDisabled(async context=>{await setDoc(doc(context.firestore(),'professionalSubscriptions/coach-a'),{status:'active',amountCents:10000,paidUntil:Timestamp.fromMillis(Date.now()+86400000)})});
 await assertSucceeds(setDoc(doc(coach,'instructors/coach-a'),{name:'Instrutor teste',email:'coach@example.com',createdAt:serverTimestamp()}));
 await assertSucceeds(setDoc(doc(coach,studentPath),{name:'Aluno teste',email:'student@example.com',phone:'',goal:'Meta de teste',notes:'',learnerUid:null,inviteCode:'',createdAt:serverTimestamp()}));
 await assertFails(getDoc(doc(other,studentPath)));await assertFails(getDoc(doc(learner,studentPath)));await assertFails(getDoc(doc(anon,studentPath)));

@@ -1,0 +1,30 @@
+import {initializeTestEnvironment,assertFails,assertSucceeds} from '@firebase/rules-unit-testing';import {doc,setDoc,getDoc,getDocs,collection,updateDoc,deleteDoc,serverTimestamp,Timestamp,writeBatch} from 'firebase/firestore';import fs from 'node:fs';
+const env=await initializeTestEnvironment({projectId:'demo-evolui-fit',firestore:{host:'127.0.0.1',port:8080,rules:fs.readFileSync('firestore.rules','utf8')}});
+try{
+const db=env.authenticatedContext('billing-pro',{email:'pro@example.com',email_verified:true}).firestore(),other=env.authenticatedContext('billing-other',{email:'other@example.com',email_verified:true}).firestore(),admin=env.authenticatedContext('billing-admin',{email:'jeffersonramalhopb@gmail.com',email_verified:true}).firestore(),unverified=env.authenticatedContext('billing-unverified',{email:'jeffersonramalhopb@gmail.com',email_verified:false}).firestore(),anon=env.unauthenticatedContext().firestore();
+const base={instructorName:'Profissional teste',email:'pro@example.com',status:'pending',amountCents:10000,paidUntil:serverTimestamp(),createdAt:serverTimestamp(),updatedAt:serverTimestamp()};
+await assertFails(setDoc(doc(db,'professionalSubscriptions/billing-pro'),{...base,status:'active',paidUntil:Timestamp.fromMillis(Date.now()+86400000)}));
+await assertFails(setDoc(doc(db,'professionalSubscriptions/billing-pro'),{...base,amountCents:1}));
+await assertSucceeds(setDoc(doc(db,'professionalSubscriptions/billing-pro'),base));
+await assertFails(updateDoc(doc(db,'professionalSubscriptions/billing-pro'),{status:'active',paidUntil:Timestamp.fromMillis(Date.now()+86400000),updatedAt:serverTimestamp()}));
+await assertFails(getDoc(doc(other,'professionalSubscriptions/billing-pro')));await assertFails(getDoc(doc(anon,'professionalSubscriptions/billing-pro')));await assertFails(getDocs(collection(db,'professionalSubscriptions')));await assertSucceeds(getDocs(collection(admin,'professionalSubscriptions')));
+const student={name:'Aluno teste cobrança',email:'student@example.com',phone:'',goal:'',notes:'',learnerUid:null,inviteCode:'',createdAt:serverTimestamp()};
+await assertFails(setDoc(doc(db,'instructors/billing-pro/students/student-bill'),student));
+const until=Timestamp.fromMillis(Date.now()+86400000);await assertFails(updateDoc(doc(unverified,'professionalSubscriptions/billing-pro'),{status:'active',paidUntil:until,updatedAt:serverTimestamp()}));
+await assertSucceeds(updateDoc(doc(admin,'professionalSubscriptions/billing-pro'),{status:'active',paidUntil:until,updatedAt:serverTimestamp()}));
+await assertSucceeds(setDoc(doc(db,'instructors/billing-pro/students/student-bill'),student));await assertSucceeds(getDocs(collection(db,'instructors/billing-pro/students')));
+await assertSucceeds(updateDoc(doc(admin,'professionalSubscriptions/billing-pro'),{status:'active',paidUntil:Timestamp.fromMillis(Date.now()-60000),updatedAt:serverTimestamp()}));
+await assertFails(getDoc(doc(db,'instructors/billing-pro/students/student-bill')));await assertFails(getDocs(collection(db,'instructors/billing-pro/students')));await assertFails(updateDoc(doc(db,'instructors/billing-pro/students/student-bill'),{goal:'Bloqueado'}));
+await assertSucceeds(updateDoc(doc(admin,'professionalSubscriptions/billing-pro'),{status:'blocked',paidUntil:until,updatedAt:serverTimestamp()}));await assertFails(getDoc(doc(db,'instructors/billing-pro/students/student-bill')));
+const paymentNotice={instructorName:'Profissional teste',email:'pro@example.com',status:'pending',amountCents:10000,reference:'REF-TESTE-100',createdAt:serverTimestamp()};await assertSucceeds(setDoc(doc(db,'paymentNotices/billing-pro'),paymentNotice));
+await assertFails(updateDoc(doc(db,'paymentNotices/billing-pro'),{status:'approved',reviewedAt:serverTimestamp(),reviewNote:'Autoliberação'}));
+await assertFails(getDoc(doc(other,'paymentNotices/billing-pro')));await assertSucceeds(getDoc(doc(admin,'paymentNotices/billing-pro')));
+await assertFails(getDoc(doc(db,'instructors/billing-pro/students/student-bill')));
+const settings={pixKey:'pix@example.com',pixName:'RECEBEDOR TESTE',pixCity:'MAURITI',support:'',updatedAt:serverTimestamp()};await assertFails(setDoc(doc(db,'billingSettings/pix'),settings));await assertFails(setDoc(doc(unverified,'billingSettings/pix'),settings));await assertSucceeds(setDoc(doc(admin,'billingSettings/pix'),settings));await assertFails(getDoc(doc(anon,'billingSettings/pix')));
+const id='a'.repeat(64),payment={instructorUid:'billing-pro',instructorName:'Profissional teste',email:'pro@example.com',amountCents:10000,reference:'REF-TESTE-100',periodStart:Timestamp.fromMillis(Date.now()),periodEnd:Timestamp.fromMillis(Date.now()+30*86400000),approvedAt:serverTimestamp(),approvedBy:'billing-admin'};
+await assertFails(setDoc(doc(db,'professionalPayments',id),payment));const confirm=writeBatch(admin);confirm.set(doc(admin,'professionalPayments',id),payment);confirm.update(doc(admin,'professionalSubscriptions/billing-pro'),{status:'active',paidUntil:until,updatedAt:serverTimestamp()});confirm.update(doc(admin,'paymentNotices/billing-pro'),{status:'approved',reviewNote:'Crédito confirmado em teste',reviewedAt:serverTimestamp()});await assertSucceeds(confirm.commit());
+await assertFails(updateDoc(doc(admin,'professionalPayments',id),{reference:'Não pode alterar'}));await assertFails(deleteDoc(doc(admin,'professionalPayments',id)));await assertSucceeds(getDoc(doc(db,'professionalPayments',id)));await assertFails(getDoc(doc(other,'professionalPayments',id)));
+await assertSucceeds(getDoc(doc(db,'instructors/billing-pro/students/student-bill')));await assertFails(deleteDoc(doc(db,'professionalSubscriptions/billing-pro')));
+await assertSucceeds(setDoc(doc(db,'users/billing-pro/records/free-personal'),{kind:'measure',date:'2026-11-07',data:{weight:80},createdAt:serverTimestamp()}));
+console.log('PASS: cobrança R$100, bloqueio no banco por vencimento/suspensão, proibição de autoliberação, avisos, administrador verificado e histórico imutável.');
+}finally{await env.cleanup()}
