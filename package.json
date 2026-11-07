@@ -13,7 +13,8 @@
     "build:web": "vite build --config vite.web.config.ts",
     "check": "tsc --noEmit",
     "test:validation": "node scripts/check-validation.mjs",
-    "test:rules": "firebase emulators:exec --only firestore --project demo-evolui-fit 'node scripts/check-firestore.mjs'"
+    "test:rules": "firebase emulators:exec --only firestore --project demo-evolui-fit 'node scripts/check-firestore.mjs'",
+    "test:timer": "node scripts/check-timer.mjs"
   },
   "dependencies": {
     "firebase": "^13.1.0",

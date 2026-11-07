@@ -26,6 +26,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm run check
       - run: pnpm run test:validation
+      - run: pnpm run test:timer
       - run: pnpm exec firebase emulators:exec --only firestore --project demo-evolui-fit 'node scripts/check-firestore.mjs'
       - run: node scripts/check-firebase-config.mjs
       - run: pnpm run build:web
