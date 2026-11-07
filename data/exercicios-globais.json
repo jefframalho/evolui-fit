@@ -1,0 +1,1082 @@
+[
+  {
+    "id": "peito-01",
+    "nome": "Supino reto barra",
+    "grupo": "Peito",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "peito-02",
+    "nome": "Supino inclinado barra",
+    "grupo": "Peito",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "peito-03",
+    "nome": "Supino declinado barra",
+    "grupo": "Peito",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "peito-04",
+    "nome": "Supino reto halteres",
+    "grupo": "Peito",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "peito-05",
+    "nome": "Supino inclinado halteres",
+    "grupo": "Peito",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "peito-06",
+    "nome": "Crucifixo reto",
+    "grupo": "Peito",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "peito-07",
+    "nome": "Crucifixo inclinado",
+    "grupo": "Peito",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "peito-08",
+    "nome": "Crossover alto",
+    "grupo": "Peito",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "peito-09",
+    "nome": "Crossover baixo",
+    "grupo": "Peito",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "peito-10",
+    "nome": "Peck deck",
+    "grupo": "Peito",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "peito-11",
+    "nome": "Flexão tradicional",
+    "grupo": "Peito",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "peito-12",
+    "nome": "Flexão inclinada",
+    "grupo": "Peito",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "peito-13",
+    "nome": "Flexão declinada",
+    "grupo": "Peito",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "peito-14",
+    "nome": "Chest press máquina",
+    "grupo": "Peito",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "peito-15",
+    "nome": "Pullover halter",
+    "grupo": "Peito",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "costas-01",
+    "nome": "Puxada frontal aberta",
+    "grupo": "Costas",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "costas-02",
+    "nome": "Puxada frontal fechada",
+    "grupo": "Costas",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "costas-03",
+    "nome": "Puxada supinada",
+    "grupo": "Costas",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "costas-04",
+    "nome": "Remada curvada barra",
+    "grupo": "Costas",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "costas-05",
+    "nome": "Remada unilateral halter",
+    "grupo": "Costas",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "costas-06",
+    "nome": "Remada baixa triângulo",
+    "grupo": "Costas",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "costas-07",
+    "nome": "Remada cavalinho",
+    "grupo": "Costas",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "costas-08",
+    "nome": "Remada articulada",
+    "grupo": "Costas",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "costas-09",
+    "nome": "Pulldown braços retos",
+    "grupo": "Costas",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "costas-10",
+    "nome": "Barra fixa pronada",
+    "grupo": "Costas",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "costas-11",
+    "nome": "Barra fixa supinada",
+    "grupo": "Costas",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "costas-12",
+    "nome": "Remada invertida",
+    "grupo": "Costas",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "costas-13",
+    "nome": "Remada serrote",
+    "grupo": "Costas",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "costas-14",
+    "nome": "Remada baixa aberta",
+    "grupo": "Costas",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "costas-15",
+    "nome": "Pullover na polia",
+    "grupo": "Costas",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "biceps-01",
+    "nome": "Rosca direta barra",
+    "grupo": "Bíceps",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "biceps-02",
+    "nome": "Rosca alternada",
+    "grupo": "Bíceps",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "biceps-03",
+    "nome": "Rosca martelo",
+    "grupo": "Bíceps",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "biceps-04",
+    "nome": "Rosca concentrada",
+    "grupo": "Bíceps",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "biceps-05",
+    "nome": "Rosca Scott",
+    "grupo": "Bíceps",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "biceps-06",
+    "nome": "Rosca inclinada",
+    "grupo": "Bíceps",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "biceps-07",
+    "nome": "Rosca na polia",
+    "grupo": "Bíceps",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "biceps-08",
+    "nome": "Rosca inversa",
+    "grupo": "Bíceps",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "biceps-09",
+    "nome": "Rosca 21",
+    "grupo": "Bíceps",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "biceps-10",
+    "nome": "Rosca spider",
+    "grupo": "Bíceps",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "biceps-11",
+    "nome": "Rosca martelo corda",
+    "grupo": "Bíceps",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "biceps-12",
+    "nome": "Rosca unilateral na polia",
+    "grupo": "Bíceps",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "triceps-01",
+    "nome": "Tríceps pulley barra",
+    "grupo": "Tríceps",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "triceps-02",
+    "nome": "Tríceps corda",
+    "grupo": "Tríceps",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "triceps-03",
+    "nome": "Tríceps francês",
+    "grupo": "Tríceps",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "triceps-04",
+    "nome": "Tríceps testa",
+    "grupo": "Tríceps",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "triceps-05",
+    "nome": "Tríceps coice",
+    "grupo": "Tríceps",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "triceps-06",
+    "nome": "Tríceps banco",
+    "grupo": "Tríceps",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "triceps-07",
+    "nome": "Tríceps unilateral polia",
+    "grupo": "Tríceps",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "triceps-08",
+    "nome": "Tríceps overhead corda",
+    "grupo": "Tríceps",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "triceps-09",
+    "nome": "Supino fechado",
+    "grupo": "Tríceps",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "triceps-10",
+    "nome": "Mergulho paralelas",
+    "grupo": "Tríceps",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "triceps-11",
+    "nome": "Extensão tríceps máquina",
+    "grupo": "Tríceps",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "triceps-12",
+    "nome": "Flexão diamante",
+    "grupo": "Tríceps",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "ombros-01",
+    "nome": "Desenvolvimento barra",
+    "grupo": "Ombros",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "ombros-02",
+    "nome": "Desenvolvimento halteres",
+    "grupo": "Ombros",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "ombros-03",
+    "nome": "Desenvolvimento máquina",
+    "grupo": "Ombros",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "ombros-04",
+    "nome": "Elevação lateral",
+    "grupo": "Ombros",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "ombros-05",
+    "nome": "Elevação frontal",
+    "grupo": "Ombros",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "ombros-06",
+    "nome": "Crucifixo inverso",
+    "grupo": "Ombros",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "ombros-07",
+    "nome": "Face pull",
+    "grupo": "Ombros",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "ombros-08",
+    "nome": "Elevação lateral polia",
+    "grupo": "Ombros",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "ombros-09",
+    "nome": "Elevação frontal anilha",
+    "grupo": "Ombros",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "ombros-10",
+    "nome": "Arnold press",
+    "grupo": "Ombros",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "ombros-11",
+    "nome": "Remada alta",
+    "grupo": "Ombros",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "ombros-12",
+    "nome": "Elevação posterior inclinada",
+    "grupo": "Ombros",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "pernas-01",
+    "nome": "Agachamento livre",
+    "grupo": "Pernas",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "pernas-02",
+    "nome": "Agachamento smith",
+    "grupo": "Pernas",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "pernas-03",
+    "nome": "Agachamento goblet",
+    "grupo": "Pernas",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "pernas-04",
+    "nome": "Leg press 45",
+    "grupo": "Pernas",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "pernas-05",
+    "nome": "Leg press horizontal",
+    "grupo": "Pernas",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "pernas-06",
+    "nome": "Cadeira extensora",
+    "grupo": "Pernas",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "pernas-07",
+    "nome": "Mesa flexora",
+    "grupo": "Pernas",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "pernas-08",
+    "nome": "Cadeira flexora",
+    "grupo": "Pernas",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "pernas-09",
+    "nome": "Stiff barra",
+    "grupo": "Pernas",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "pernas-10",
+    "nome": "Stiff halteres",
+    "grupo": "Pernas",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "pernas-11",
+    "nome": "Levantamento terra romeno",
+    "grupo": "Pernas",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "pernas-12",
+    "nome": "Afundo",
+    "grupo": "Pernas",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "pernas-13",
+    "nome": "Passada caminhando",
+    "grupo": "Pernas",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "pernas-14",
+    "nome": "Agachamento búlgaro",
+    "grupo": "Pernas",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "pernas-15",
+    "nome": "Hack squat",
+    "grupo": "Pernas",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "pernas-16",
+    "nome": "Panturrilha em pé",
+    "grupo": "Pernas",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "pernas-17",
+    "nome": "Panturrilha sentado",
+    "grupo": "Pernas",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "pernas-18",
+    "nome": "Panturrilha leg press",
+    "grupo": "Pernas",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "pernas-19",
+    "nome": "Adutora máquina",
+    "grupo": "Pernas",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "pernas-20",
+    "nome": "Abdutora máquina",
+    "grupo": "Pernas",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "gluteos-01",
+    "nome": "Elevação pélvica barra",
+    "grupo": "Glúteos",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "gluteos-02",
+    "nome": "Elevação pélvica máquina",
+    "grupo": "Glúteos",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "gluteos-03",
+    "nome": "Coice na polia",
+    "grupo": "Glúteos",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "gluteos-04",
+    "nome": "Coice quatro apoios",
+    "grupo": "Glúteos",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "gluteos-05",
+    "nome": "Ponte de glúteos",
+    "grupo": "Glúteos",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "gluteos-06",
+    "nome": "Abdução de quadril polia",
+    "grupo": "Glúteos",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "gluteos-07",
+    "nome": "Abdução lateral deitada",
+    "grupo": "Glúteos",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "gluteos-08",
+    "nome": "Step-up",
+    "grupo": "Glúteos",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "gluteos-09",
+    "nome": "Agachamento sumô",
+    "grupo": "Glúteos",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "gluteos-10",
+    "nome": "Extensão de quadril máquina",
+    "grupo": "Glúteos",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "gluteos-11",
+    "nome": "Caminhada lateral elástico",
+    "grupo": "Glúteos",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "gluteos-12",
+    "nome": "Pull-through na polia",
+    "grupo": "Glúteos",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "abdomen-01",
+    "nome": "Abdominal crunch",
+    "grupo": "Abdômen",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "abdomen-02",
+    "nome": "Abdominal infra",
+    "grupo": "Abdômen",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "abdomen-03",
+    "nome": "Prancha frontal",
+    "grupo": "Abdômen",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "abdomen-04",
+    "nome": "Prancha lateral",
+    "grupo": "Abdômen",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "abdomen-05",
+    "nome": "Abdominal bicicleta",
+    "grupo": "Abdômen",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "abdomen-06",
+    "nome": "Elevação de pernas",
+    "grupo": "Abdômen",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "abdomen-07",
+    "nome": "Abdominal na polia",
+    "grupo": "Abdômen",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "abdomen-08",
+    "nome": "Abdominal máquina",
+    "grupo": "Abdômen",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "abdomen-09",
+    "nome": "Dead bug",
+    "grupo": "Abdômen",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "abdomen-10",
+    "nome": "Bird dog",
+    "grupo": "Abdômen",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "abdomen-11",
+    "nome": "Abdominal reverso",
+    "grupo": "Abdômen",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "abdomen-12",
+    "nome": "Prancha com toque no ombro",
+    "grupo": "Abdômen",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "cardio-01",
+    "nome": "Caminhada esteira",
+    "grupo": "Cardio",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "cardio-02",
+    "nome": "Corrida esteira",
+    "grupo": "Cardio",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "cardio-03",
+    "nome": "Bicicleta ergométrica",
+    "grupo": "Cardio",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "cardio-04",
+    "nome": "Elíptico",
+    "grupo": "Cardio",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "cardio-05",
+    "nome": "Remo ergômetro",
+    "grupo": "Cardio",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "cardio-06",
+    "nome": "Escada ergométrica",
+    "grupo": "Cardio",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "cardio-07",
+    "nome": "Pular corda",
+    "grupo": "Cardio",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "cardio-08",
+    "nome": "Polichinelo",
+    "grupo": "Cardio",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "cardio-09",
+    "nome": "Caminhada inclinada",
+    "grupo": "Cardio",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  },
+  {
+    "id": "cardio-10",
+    "nome": "Bicicleta reclinada",
+    "grupo": "Cardio",
+    "equipamento": "A definir",
+    "nivel": "A definir",
+    "instrucoes": "Revisão técnica pendente por profissional habilitado.",
+    "videoUrl": null
+  }
+]
