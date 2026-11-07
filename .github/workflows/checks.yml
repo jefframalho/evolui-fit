@@ -1,0 +1,26 @@
+name: Verificar contas e regras do banco
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run check
+      - run: pnpm run test:validation
+      - run: pnpm exec firebase emulators:exec --only firestore --project demo-evolui-fit 'node scripts/check-firestore.mjs'
+      - run: pnpm run build:web

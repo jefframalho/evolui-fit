@@ -1,0 +1,9 @@
+node_modules/
+web-dist/
+.env*
+*.pem
+*service-account*.json
+*serviceAccount*.json
+*.tsbuildinfo
+*-debug.log*
+.firebase/
