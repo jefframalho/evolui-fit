@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Evolui Fit | Agachamento 3D</title><style>body{margin:0;background:#071421;color:white;font:16px system-ui}header{padding:18px;background:#10283b}h1{margin:0;font-size:23px}p{color:#bcd0dd}#scene{height:65vh;min-height:360px}footer{padding:16px}button{background:#18c98b;color:#04211a;border:0;border-radius:12px;padding:12px 22px;font-weight:bold;margin-right:10px}</style></head><body><header><h1>EVOLUI FIT · Agachamento 3D</h1><p>Demonstração inicial — modelo masculino estilizado</p></header><div id="scene"></div><footer><button id="pause">Pausar</button><button id="angle">Girar câmera</button><p>Flexione quadris e joelhos de forma controlada. Mantenha os pés apoiados e a coluna neutra. Esta animação é ilustrativa, não substitui orientação profissional.</p></footer><script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js';
+const scene=new THREE.Scene();scene.background=new THREE.Color('#071421');const camera=new THREE.PerspectiveCamera(42,innerWidth/innerHeight,.1,100);camera.position.set(4,2.5,6.5);camera.lookAt(0,1.1,0);
+const renderer=new THREE.WebGLRenderer({antialias:true});document.getElementById('scene').appendChild(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xffffff,0x28445d,2));const light=new THREE.DirectionalLight(0xffffff,2);light.position.set(3,7,5);scene.add(light);
+const mat=new THREE.MeshStandardMaterial({color:0xd6a17c,roughness:.65}),shirt=new THREE.MeshStandardMaterial({color:0x16ba92}),shorts=new THREE.MeshStandardMaterial({color:0x202e44}),shoe=new THREE.MeshStandardMaterial({color:0xffffff});
+function ball(parent,r,m){let o=new THREE.Mesh(new THREE.SphereGeometry(r,20,16),m);parent.add(o);return o}
+function segment(parent,a,b,r,m){const d=new THREE.Vector3().subVectors(b,a);const o=new THREE.Mesh(new THREE.CylinderGeometry(r,r,d.length(),16),m);o.position.copy(a).add(b).multiplyScalar(.5);o.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());parent.add(o);return o}
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(20,20),new THREE.MeshStandardMaterial({color:0x173247}));floor.rotation.x=-Math.PI/2;scene.add(floor);
+const model=new THREE.Group();scene.add(model);let parts=[];
+function pose(t){for(const p of parts)model.remove(p);parts=[];function add(x){model.add(x);parts.push(x);return x}
+const bend=(1-Math.cos(t))/2, hipY=1.15-.42*bend, hipZ=-.38*bend;
+function point(x,y,z){return new THREE.Vector3(x,y,z)}
+function link(a,b,r,m){const o=new THREE.Group();segment(o,a,b,r,m);add(o)}
+for(let s of [-1,1]){const x=s*.23,ankle=point(x,.15,.1),knee=point(x,.62-.10*bend,.08+.38*bend),hip=point(x,hipY,hipZ);link(ankle,knee,.105,mat);link(knee,hip,.145,shorts);let foot=add(new THREE.Mesh(new THREE.BoxGeometry(.24,.16,.45),shoe));foot.position.set(x,.09,.22)}
+let torso=add(new THREE.Mesh(new THREE.CylinderGeometry(.31,.23,.70,20),shirt));torso.position.set(0,hipY+.39,hipZ+.11*bend);torso.rotation.x=.22*bend;
+let head=add(new THREE.Mesh(new THREE.SphereGeometry(.19,24,18),mat));head.position.set(0,hipY+.91,hipZ+.22*bend);
+for(let s of [-1,1]){const shoulder=point(s*.34,hipY+.64,hipZ+.10*bend),elbow=point(s*.42,hipY+.29,hipZ+.25*bend),hand=point(s*.38,hipY+.10,hipZ+.46*bend);link(shoulder,elbow,.095,mat);link(elbow,hand,.08,mat)}
+}
+let playing=true,phase=0,orbit=false;document.getElementById('pause').onclick=()=>{playing=!playing;document.getElementById('pause').textContent=playing?'Pausar':'Reproduzir'};document.getElementById('angle').onclick=()=>orbit=!orbit;
+function resize(){const el=document.getElementById('scene');renderer.setSize(el.clientWidth,el.clientHeight);camera.aspect=el.clientWidth/el.clientHeight;camera.updateProjectionMatrix()}addEventListener('resize',resize);resize();
+let last=performance.now();function loop(now){requestAnimationFrame(loop);if(playing)phase+=(now-last)*.0017;last=now;pose(phase);if(orbit){camera.position.x=6*Math.sin(now*.00035);camera.position.z=6*Math.cos(now*.00035);camera.lookAt(0,1.1,0)}renderer.render(scene,camera)}requestAnimationFrame(loop);
+</script></body></html>
