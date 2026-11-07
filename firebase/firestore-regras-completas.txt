@@ -1,0 +1,276 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isBillingAdmin() { return request.auth != null && 'email' in request.auth.token && 'email_verified' in request.auth.token && request.auth.token.email_verified == true && request.auth.token.email.lower() == 'jeffersonramalhopb@gmail.com'; }
+    function professionalActive(uid) { return isBillingAdmin() || (exists(/databases/$(database)/documents/professionalSubscriptions/$(uid)) && get(/databases/$(database)/documents/professionalSubscriptions/$(uid)).data.status == 'active' && get(/databases/$(database)/documents/professionalSubscriptions/$(uid)).data.amountCents == 10000 && get(/databases/$(database)/documents/professionalSubscriptions/$(uid)).data.paidUntil > request.time); }
+    function professionalOwner(uid) { return isOwner(uid) && professionalActive(uid); }
+    function isOwner(uid) { return request.auth != null && request.auth.uid == uid; }
+    function optionalNumber(d, key, min, max) {
+      return !(key in d) || ((d[key] is int || d[key] is float) && d[key] >= min && d[key] <= max);
+    }
+    function optionalNotes(d) { return !('notes' in d) || (d.notes is string && d.notes.size() <= 2000); }
+    function validData(r) {
+      let d = r.data;
+      return optionalNotes(d) && (
+        (r.kind == 'schedule'
+          && d.keys().hasOnly(['title','time','duration','type','status','workoutId','notes'])
+          && d.keys().hasAll(['title','time','duration','type','status'])
+          && d.title is string && d.title.size() > 0 && d.title.size() <= 100
+          && d.time is string && d.time.matches('^([01][0-9]|2[0-3]):[0-5][0-9]$')
+          && d.duration is int && d.duration >= 5 && d.duration <= 1440
+          && d.type in ['Treino','Cardio','Descanso','Outro']
+          && d.status in ['planned','done']
+          && (!('workoutId' in d) || (d.workoutId is string && d.workoutId.size() <= 128)))
+        || (r.kind == 'measure'
+          && d.keys().hasOnly(['weight','waist','chest','arm','thigh','hip','notes'])
+          && d.keys().hasAny(['weight','waist','chest','arm','thigh','hip'])
+          && optionalNumber(d,'weight',0.1,1000) && optionalNumber(d,'waist',0.1,1000)
+          && optionalNumber(d,'chest',0.1,1000) && optionalNumber(d,'arm',0.1,1000)
+          && optionalNumber(d,'thigh',0.1,1000) && optionalNumber(d,'hip',0.1,1000))
+        || (r.kind == 'goal'
+          && d.keys().hasOnly(['targetWeight','weekly','notes'])
+          && d.keys().hasAny(['targetWeight','weekly'])
+          && optionalNumber(d,'targetWeight',0.1,1000) && optionalNumber(d,'weekly',1,14)
+          && (!('weekly' in d) || d.weekly is int))
+        || (r.kind == 'habit'
+          && d.keys().hasOnly(['water','sleep','mood','meals','notes'])
+          && d.keys().size() > 0
+          && optionalNumber(d,'water',0,20) && optionalNumber(d,'sleep',0.1,24)
+          && (!('mood' in d) || d.mood in ['Com energia','Bem','Cansado','Desanimado'])
+          && (!('meals' in d) || (d.meals is string && d.meals.size() <= 3000)))
+        || (r.kind == 'workout'
+          && d.keys().hasOnly(['name','duration','exercises','notes'])
+          && d.keys().hasAll(['name','duration','exercises'])
+          && d.name is string && d.name.size() > 0 && d.name.size() <= 100
+          && d.duration is int && d.duration >= 1 && d.duration <= 1440
+          && d.exercises is list && d.exercises.size() >= 1 && d.exercises.size() <= 50)
+      );
+    }
+    match /users/{uid}/records/{recordId} {
+      allow get, list: if isOwner(uid);
+      allow create: if isOwner(uid)
+        && request.resource.data.keys().hasAll(['kind','date','data','createdAt'])
+        && request.resource.data.keys().hasOnly(['kind','date','data','createdAt'])
+        && request.resource.data.kind in ['workout','measure','habit','goal','schedule']
+        && request.resource.data.date is string
+        && request.resource.data.date.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && request.resource.data.data is map
+        && request.resource.data.createdAt == request.time
+        && validData(request.resource.data);
+      allow delete: if isOwner(uid);
+      allow update: if isOwner(uid)
+        && resource.data.kind == 'schedule'
+        && request.resource.data.kind == 'schedule'
+        && request.resource.data.keys().hasOnly(['kind','date','data','createdAt'])
+        && request.resource.data.keys().hasAll(['kind','date','data','createdAt'])
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.date is string
+        && request.resource.data.date.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && request.resource.data.data is map
+        && validData(request.resource.data);
+    }
+    function linkedStudent(instructorUid, studentId) {
+      return request.auth != null && professionalActive(instructorUid)
+        && get(/databases/$(database)/documents/instructors/$(instructorUid)/students/$(studentId)).data.learnerUid == request.auth.uid;
+    }
+    function validStudent(d) {
+      return d.keys().hasOnly(['name','email','phone','goal','notes','learnerUid','inviteCode','createdAt'])
+        && d.keys().hasAll(['name','email','phone','goal','notes','learnerUid','inviteCode','createdAt'])
+        && d.name is string && d.name.size() >= 2 && d.name.size() <= 100
+        && d.email is string && d.email.size() >= 3 && d.email.size() <= 254
+        && d.phone is string && d.phone.size() <= 30
+        && d.goal is string && d.goal.size() <= 500
+        && d.notes is string && d.notes.size() <= 2000
+        && (d.learnerUid == null || d.learnerUid is string)
+        && d.inviteCode is string && (d.inviteCode == '' || d.inviteCode.matches('^[A-Za-z0-9]{20}$'))
+        && d.createdAt is timestamp;
+    }
+    function canClaim(instructorUid, studentId, code) {
+      let invitation = get(/databases/$(database)/documents/instructorInvites/$(code)).data;
+      return request.auth != null && request.auth.token.email_verified == true
+        && invitation.email == request.auth.token.email.lower()
+        && invitation.instructorUid == instructorUid && invitation.studentId == studentId
+        && invitation.expiresAt > request.time && professionalActive(instructorUid);
+    }
+    function validPlan(d) {
+      return d.keys().hasOnly(['title','days','notes','exercises','updatedAt'])
+        && d.keys().hasAll(['title','days','notes','exercises','updatedAt'])
+        && d.title is string && d.title.size() >= 2 && d.title.size() <= 100
+        && d.days is string && d.days.size() <= 100
+        && d.notes is string && d.notes.size() <= 2000
+        && d.exercises is list && d.exercises.size() > 0 && d.exercises.size() <= 80
+        && d.updatedAt == request.time;
+    }
+    function validEvaluation(d, month) {
+      return d.keys().hasOnly(['month','weight','waist','chest','arm','thigh','hip','bodyFat','notes','updatedAt'])
+        && d.keys().hasAll(['month','notes','updatedAt'])
+        && d.keys().hasAny(['weight','waist','chest','arm','thigh','hip','bodyFat'])
+        && d.month == month && month.matches('^[0-9]{4}-(0[1-9]|1[0-2])$')
+        && d.notes is string && d.notes.size() <= 3000
+        && optionalNumber(d,'weight',1,1000) && optionalNumber(d,'waist',1,1000)
+        && optionalNumber(d,'chest',1,1000) && optionalNumber(d,'arm',1,1000)
+        && optionalNumber(d,'thigh',1,1000) && optionalNumber(d,'hip',1,1000)
+        && optionalNumber(d,'bodyFat',0,100) && d.updatedAt == request.time;
+    }
+    match /instructors/{instructorUid} {
+      allow get: if isOwner(instructorUid);
+      allow create: if isOwner(instructorUid)
+        && request.resource.data.keys().hasOnly(['name','email','createdAt'])
+        && request.resource.data.keys().hasAll(['name','email','createdAt'])
+        && request.resource.data.name is string && request.resource.data.name.size() <= 100
+        && request.resource.data.email is string && request.resource.data.email.size() <= 254
+        && request.resource.data.createdAt == request.time;
+      allow list, update, delete: if false;
+      match /students/{studentId} {
+        allow get: if professionalOwner(instructorUid) || linkedStudent(instructorUid, studentId);
+        allow list: if professionalOwner(instructorUid);
+        allow create: if professionalOwner(instructorUid) && validStudent(request.resource.data)
+          && request.resource.data.learnerUid == null && request.resource.data.inviteCode == ''
+          && request.resource.data.createdAt == request.time;
+        allow update: if validStudent(request.resource.data)
+          && request.resource.data.createdAt == resource.data.createdAt
+          && (
+            (professionalOwner(instructorUid) && (request.resource.data.learnerUid == resource.data.learnerUid || request.resource.data.learnerUid == null))
+            || (request.auth != null
+              && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['learnerUid'])
+              && (
+                (resource.data.learnerUid == null && request.resource.data.learnerUid == request.auth.uid && canClaim(instructorUid, studentId, resource.data.inviteCode))
+                || (resource.data.learnerUid == request.auth.uid && request.resource.data.learnerUid == null)
+              ))
+          );
+        allow delete: if false;
+        match /plans/{planId} {
+          allow read: if professionalOwner(instructorUid) || linkedStudent(instructorUid, studentId);
+          allow create, update: if professionalOwner(instructorUid) && exists(/databases/$(database)/documents/instructors/$(instructorUid)/students/$(studentId)) && validPlan(request.resource.data);
+          allow delete: if professionalOwner(instructorUid);
+        }
+        match /evaluations/{month} {
+          allow read: if professionalOwner(instructorUid) || linkedStudent(instructorUid, studentId);
+          allow create, update: if professionalOwner(instructorUid) && exists(/databases/$(database)/documents/instructors/$(instructorUid)/students/$(studentId)) && validEvaluation(request.resource.data, month);
+          allow delete: if false;
+        }
+      }
+    }
+    match /instructorInvites/{code} {
+      allow get: if request.auth != null && (professionalOwner(resource.data.instructorUid)
+        || (request.auth.token.email_verified == true && resource.data.email == request.auth.token.email.lower() && resource.data.expiresAt > request.time && professionalActive(resource.data.instructorUid)));
+      allow list, update: if false;
+      allow create: if request.auth != null && request.resource.data.keys().hasOnly(['instructorUid','studentId','email','instructorName','expiresAt'])
+        && request.resource.data.keys().hasAll(['instructorUid','studentId','email','instructorName','expiresAt'])
+        && request.resource.data.instructorUid == request.auth.uid && professionalActive(request.auth.uid)
+        && request.resource.data.studentId is string
+        && request.resource.data.email is string && request.resource.data.email.size() <= 254
+        && request.resource.data.instructorName is string && request.resource.data.instructorName.size() <= 100
+        && request.resource.data.expiresAt is timestamp
+        && request.resource.data.expiresAt > request.time && request.resource.data.expiresAt <= request.time + duration.value(30, 'd')
+        && getAfter(/databases/$(database)/documents/instructors/$(request.auth.uid)/students/$(request.resource.data.studentId)).data.email == request.resource.data.email
+        && getAfter(/databases/$(database)/documents/instructors/$(request.auth.uid)/students/$(request.resource.data.studentId)).data.inviteCode == code
+        && getAfter(/databases/$(database)/documents/instructors/$(request.auth.uid)/students/$(request.resource.data.studentId)).data.learnerUid == null;
+      allow delete: if request.auth != null && professionalOwner(resource.data.instructorUid);
+    }
+    match /users/{uid}/instructorLinks/{linkId} {
+      allow read, delete: if isOwner(uid);
+      allow update: if false;
+      allow create: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['instructorUid','studentId','instructorName','createdAt'])
+        && request.resource.data.keys().hasAll(['instructorUid','studentId','instructorName','createdAt'])
+        && request.resource.data.instructorUid is string && request.resource.data.studentId is string
+        && request.resource.data.instructorName is string && request.resource.data.instructorName.size() <= 100
+        && linkId == request.resource.data.instructorUid + '_' + request.resource.data.studentId
+        && request.resource.data.createdAt == request.time
+        && getAfter(/databases/$(database)/documents/instructors/$(request.resource.data.instructorUid)/students/$(request.resource.data.studentId)).data.learnerUid == uid
+        && professionalActive(request.resource.data.instructorUid);
+    }
+
+    function validSubscription(d) {
+      return d.keys().hasOnly(['instructorName','email','status','amountCents','paidUntil','createdAt','updatedAt'])
+        && d.keys().hasAll(['instructorName','email','status','amountCents','paidUntil','createdAt','updatedAt'])
+        && d.instructorName is string && d.instructorName.size() <= 100
+        && d.email is string && d.email.size() >= 3 && d.email.size() <= 254
+        && d.status in ['pending','active','blocked'] && d.amountCents == 10000
+        && d.paidUntil is timestamp && d.createdAt is timestamp && d.updatedAt == request.time;
+    }
+    match /professionalSubscriptions/{uid} {
+      allow get: if isOwner(uid) || isBillingAdmin();
+      allow list: if isBillingAdmin();
+      allow create: if isOwner(uid) && validSubscription(request.resource.data)
+        && request.resource.data.email == request.auth.token.email.lower()
+        && request.resource.data.status == 'pending'
+        && request.resource.data.paidUntil == request.time && request.resource.data.createdAt == request.time;
+      allow update: if isBillingAdmin() && validSubscription(request.resource.data)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','paidUntil','updatedAt']);
+      allow delete: if false;
+    }
+    match /billingSettings/pix {
+      allow get: if request.auth != null;
+      allow list: if false;
+      allow create, update: if isBillingAdmin()
+        && request.resource.data.keys().hasOnly(['pixKey','pixName','pixCity','support','updatedAt'])
+        && request.resource.data.keys().hasAll(['pixKey','pixName','pixCity','support','updatedAt'])
+        && request.resource.data.pixKey is string && request.resource.data.pixKey.size() > 0 && request.resource.data.pixKey.size() <= 77
+        && request.resource.data.pixName is string && request.resource.data.pixName.size() > 0 && request.resource.data.pixName.size() <= 100
+        && request.resource.data.pixCity is string && request.resource.data.pixCity.size() > 0 && request.resource.data.pixCity.size() <= 50
+        && request.resource.data.support is string && request.resource.data.support.size() <= 200
+        && request.resource.data.updatedAt == request.time;
+      allow delete: if false;
+    }
+    function validPendingNotice(d) {
+      return d.keys().hasOnly(['instructorName','email','reference','status','amountCents','createdAt'])
+        && d.keys().hasAll(['instructorName','email','reference','status','amountCents','createdAt'])
+        && d.instructorName is string && d.instructorName.size() <= 100
+        && d.email == request.auth.token.email.lower()
+        && d.reference is string && d.reference.size() <= 100
+        && d.status == 'pending' && d.amountCents == 10000 && d.createdAt == request.time;
+    }
+    match /paymentNotices/{uid} {
+      allow get: if isOwner(uid) || isBillingAdmin();
+      allow list: if isBillingAdmin();
+      allow create: if isOwner(uid) && validPendingNotice(request.resource.data);
+      allow update: if (isOwner(uid) && resource.data.status in ['approved','rejected'] && validPendingNotice(request.resource.data))
+        || (isBillingAdmin() && resource.data.status == 'pending'
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','reviewNote','reviewedAt'])
+          && request.resource.data.status in ['approved','rejected']
+          && request.resource.data.reviewNote is string && request.resource.data.reviewNote.size() <= 300
+          && request.resource.data.reviewedAt == request.time);
+      allow delete: if false;
+    }
+    match /professionalPayments/{id} {
+      allow get, list: if isBillingAdmin() || (request.auth != null && resource.data.instructorUid == request.auth.uid);
+      allow create: if isBillingAdmin()
+        && id.matches('^[a-f0-9]{64}$')
+        && request.resource.data.keys().hasOnly(['instructorUid','instructorName','email','amountCents','reference','periodStart','periodEnd','approvedAt','approvedBy'])
+        && request.resource.data.keys().hasAll(['instructorUid','instructorName','email','amountCents','reference','periodStart','periodEnd','approvedAt','approvedBy'])
+        && request.resource.data.instructorUid is string && request.resource.data.instructorName is string && request.resource.data.instructorName.size() <= 100
+        && request.resource.data.email is string && request.resource.data.email.size() <= 254
+        && request.resource.data.amountCents == 10000
+        && request.resource.data.reference is string && request.resource.data.reference.size() >= 4 && request.resource.data.reference.size() <= 100
+        && request.resource.data.periodStart is timestamp && request.resource.data.periodEnd is timestamp
+        && request.resource.data.periodEnd > request.resource.data.periodStart
+        && request.resource.data.periodEnd <= request.resource.data.periodStart + duration.value(32, 'd')
+        && request.resource.data.approvedAt == request.time && request.resource.data.approvedBy == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    // Biblioteca global de exercicios
+    function validLibraryExercise(d) {
+      return d.keys().hasOnly(['id','nome','grupo','equipamento','nivel','instrucoes','videoUrl'])
+        && d.keys().hasAll(['id','nome','grupo','equipamento','nivel','instrucoes','videoUrl'])
+        && d.id is string && d.id.size() > 0 && d.id.size() <= 100
+        && d.nome is string && d.nome.size() > 0 && d.nome.size() <= 150
+        && d.grupo in ['Peito','Costas','Bíceps','Tríceps','Ombros','Pernas','Glúteos','Abdômen','Cardio']
+        && d.equipamento is string && d.equipamento.size() <= 150
+        && d.nivel is string && d.nivel.size() <= 100
+        && d.instrucoes is string && d.instrucoes.size() <= 3000
+        && (d.videoUrl == null || (d.videoUrl is string && d.videoUrl.size() <= 2000));
+    }
+    match /exerciseLibrary/{exerciseId} {
+      allow get, list: if request.auth != null;
+      allow create, update: if isBillingAdmin()
+        && validLibraryExercise(request.resource.data)
+        && request.resource.data.id == exerciseId;
+      allow delete: if isBillingAdmin();
+    }
+
+    match /{document=**} { allow read, write: if false; }
+  }
+}
