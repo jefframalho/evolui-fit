@@ -31,6 +31,7 @@ jobs:
       - run: pnpm run test:coach-validation
       - run: pnpm run test:billing-math
       - run: pnpm run test:video
+      - run: pnpm run test:animations
       - run: pnpm exec firebase emulators:exec --only firestore --project demo-evolui-fit 'node scripts/check-firestore.mjs && node scripts/check-instructor.mjs && node scripts/check-billing.mjs'
       - run: node scripts/check-firebase-config.mjs
       - run: pnpm run build:web
