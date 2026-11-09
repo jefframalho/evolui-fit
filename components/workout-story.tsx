@@ -35,6 +35,7 @@ export default function WorkoutStory({workoutName,exerciseCount}:{workoutName?:s
   const [cameraOpen,setCameraOpen]=useState(false);
   const [cameraReady,setCameraReady]=useState(false);
   const [facing,setFacing]=useState<'user'|'environment'>('user');
+  const nativeCamera=useRef<HTMLInputElement>(null);
   const video=useRef<HTMLVideoElement>(null);
   const canvas=useRef<HTMLCanvasElement>(null);
 
@@ -210,13 +211,16 @@ export default function WorkoutStory({workoutName,exerciseCount}:{workoutName?:s
       <button className="secondary" onClick={()=>{setCameraReady(false);setFacing(facing==='user'?'environment':'user')}}>Trocar câmera</button>
       <button className="secondary" onClick={()=>{setCameraReady(false);setCameraOpen(false)}}>Cancelar câmera</button>
     </div>:<button className="primary" onClick={()=>{setMessage('');setCameraReady(false);setCameraOpen(true)}}><Camera size={16}/> Abrir câmera</button>)}
-    {!card&&!cameraOpen&&<label>Câmera do celular
-      <input type="file" accept="image/*" capture="environment" onChange={event=>{
+    {!card&&<div>
+      <button type="button" className="secondary" onClick={()=>{setCameraOpen(false);setCameraReady(false);nativeCamera.current?.click()}}>
+        <Camera size={16}/> Abrir câmera nativa
+      </button>
+      <input ref={nativeCamera} hidden type="file" accept="image/*" capture="environment" onChange={event=>{
         const file=event.target.files?.[0];
         if(file){setPhoto(file);setStory(null);setMessage('')}
         event.target.value='';
       }}/>
-    </label>}
+    </div>}
     {!card&&<label>{after?'Foto do antes · galeria':'Escolher da galeria'}<input type="file" accept="image/*" onChange={event=>{
       const file=event.target.files?.[0];
       if(file){setPhoto(file);setStory(null);setMessage('')}
