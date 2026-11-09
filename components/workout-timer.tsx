@@ -3,24 +3,26 @@ import {useEffect,useRef,useState} from 'react';
 import {Timer,Play,Pause,RotateCcw,Check,SkipForward,Volume2,VolumeX,ChevronLeft,ChevronRight,Dumbbell,Zap} from 'lucide-react';
 import {formatTimer,timerValue,type TimerMode} from '../lib/timer-math';
 import {friendlyError} from '../lib/fitness-backend';
-import type {Series} from '../lib/workout-sessions';
+import type {Series,WorkoutFeedback} from '../lib/workout-sessions';
 import ExerciseDemo from './exercise-demo';
 import type {FitnessEntry} from '../lib/fitness-backend';
 type AudioWindow=Window&{webkitAudioContext?:typeof AudioContext};
-type TimerSnapshot={index:number;series:Series[];mode:TimerMode;baseMs:number;startedAt:number|null;restSeconds:number;share:boolean};
-export default function WorkoutTimer({workout,initialIndex=0,storageKey,previousSeries,onFinish}:{workout:FitnessEntry|null;initialIndex?:number;storageKey?:string;previousSeries?:(name:string)=>Series|undefined;onFinish?:(series:Series[],share:boolean)=>Promise<void>}){
+type TimerSnapshot={index:number;series:Series[];mode:TimerMode;baseMs:number;startedAt:number|null;restSeconds:number;share:boolean;alternatives?:Record<number,boolean>;feedback?:Record<number,WorkoutFeedback>};
+export default function WorkoutTimer({workout,initialIndex=0,storageKey,previousSeries,onFinish}:{workout:FitnessEntry|null;initialIndex?:number;storageKey?:string;previousSeries?:(name:string)=>Series|undefined;onFinish?:(series:Series[],share:boolean,feedback:WorkoutFeedback[])=>Promise<void>}){
  const [saved]=useState<TimerSnapshot|null>(()=>{
    try{return storageKey?JSON.parse(localStorage.getItem(storageKey)||'null'):null}catch{return null}
  });
  const [series,setSeries]=useState<Series[]>(saved?.series||[]);
+ const [alternatives,setAlternatives]=useState(saved?.alternatives||{});
+ const [feedback,setFeedback]=useState(saved?.feedback||{});
  const [share,setShare]=useState(saved?.share||false);
  const [load,setLoad]=useState(''),[reps,setReps]=useState(''),[saving,setSaving]=useState(false),[saveError,setSaveError]=useState('');
  const [mode,setMode]=useState<TimerMode>(saved?.mode||'exercise'),[baseMs,setBaseMs]=useState(saved?.baseMs||0),[startedAt,setStartedAt]=useState<number|null>(saved?.startedAt??null),[now,setNow]=useState(Date.now()),[restSeconds,setRestSeconds]=useState(saved?.restSeconds||60),[sound,setSound]=useState(true),[notice,setNotice]=useState(''),[index,setIndex]=useState(saved?.index??initialIndex),[completed,setCompleted]=useState(0),[manualName,setManualName]=useState('Meu exercício');
  const audio=useRef<AudioContext|null>(null),announced=useRef(false);
- const exercises=workout?.data.exercises||[],exercise=exercises[index],name=exercise?.name||manualName,remaining=timerValue(mode,baseMs,startedAt,now),running=startedAt!==null;
+ const exercises=workout?.data.exercises||[],original=exercises[index],exercise=original&&alternatives[index]&&original.alternative?{...original,...original.alternative}:original,name=exercise?.name||manualName,remaining=timerValue(mode,baseMs,startedAt,now),running=startedAt!==null;
  const previousStart=useRef({id:workout?.id,index:initialIndex});
  useEffect(()=>{if(previousStart.current.id===workout?.id&&previousStart.current.index===initialIndex)return;previousStart.current={id:workout?.id,index:initialIndex};setIndex(initialIndex);setMode('exercise');setBaseMs(0);setStartedAt(null);setCompleted(0);setNotice('');announced.current=false},[workout?.id,initialIndex]);
- useEffect(()=>{if(exercise?.rest&&saved?.index!==index)setRestSeconds(Number(exercise.rest));setLoad(String(exercise?.load??''));setReps(String(exercise?.reps??'').match(/^\d+/)?.[0]||'');},[workout?.id,index]);
+ useEffect(()=>{if(exercise?.rest&&saved?.index!==index)setRestSeconds(Number(exercise.rest));setLoad(String(exercise?.load??''));setReps(String(exercise?.reps??'').match(/^\d+/)?.[0]||'');},[workout?.id,index,alternatives[index]]);
  useEffect(()=>{if(!running)return;const tick=()=>setNow(Date.now());const interval=setInterval(tick,150);document.addEventListener('visibilitychange',tick);return()=>{clearInterval(interval);document.removeEventListener('visibilitychange',tick)}},[running]);
  useEffect(()=>{if(mode==='rest'&&running&&remaining<=0&&!announced.current){announced.current=true;setStartedAt(null);setBaseMs(0);setNotice('Intervalo concluído. Pronto para a próxima série!');notify()}},[remaining,mode,running]);
  useEffect(()=>()=>{audio.current?.close().catch(()=>{})},[]);
@@ -30,12 +32,12 @@ export default function WorkoutTimer({workout,initialIndex=0,storageKey,previous
  function toggle(){unlockAudio();if(mode==='rest'&&remaining===0){setTimer('exercise',0,true);return}if(running){setBaseMs(timerValue(mode,baseMs,startedAt,Date.now()));setStartedAt(null)}else{setStartedAt(Date.now());setNow(Date.now());announced.current=false}setNotice('')}
  useEffect(()=>{
    if(!storageKey)return;
-   try{localStorage.setItem(storageKey,JSON.stringify({index,series,mode,baseMs,startedAt,restSeconds,share}))}catch{}
- },[storageKey,index,series,mode,baseMs,startedAt,restSeconds,share]);
+   try{localStorage.setItem(storageKey,JSON.stringify({index,series,mode,baseMs,startedAt,restSeconds,share,alternatives,feedback}))}catch{}
+ },[storageKey,index,series,mode,baseMs,startedAt,restSeconds,share,alternatives,feedback]);
  async function finishWorkout(){
    if(!onFinish||!series.length||saving)return;
    setSaving(true);setSaveError('');
-   try{await onFinish(series,share)}catch(error){setSaveError(friendlyError(error))}finally{setSaving(false)}
+   try{await onFinish(series,share,Object.values(feedback).map(row=>({...row,note:row.note.trim()||'Dificuldade sinalizada no treino.'})))}catch(error){setSaveError(friendlyError(error))}finally{setSaving(false)}
  }
  function finishSet(){
    if(saving)return;
@@ -53,6 +55,19 @@ export default function WorkoutTimer({workout,initialIndex=0,storageKey,previous
  const last=exercise ? previousSeries?.(exercise.name) : undefined;
  const ring=mode==='rest'?Math.min(1,remaining/(restSeconds*1000)):((remaining/1000)%60)/60;
  return <section className="live-workout"><div className="timer-layout"><div className={'timer-card '+(mode==='rest'?'resting':'')}><div className="timer-top"><span className="live-pill"><span/>{mode==='rest'?'RECUPERAÇÃO':'FOCO NO MOVIMENTO'}</span><button className="icon-button sound-button" type="button" aria-label={sound?'Desativar aviso sonoro':'Ativar aviso sonoro'} aria-pressed={sound} onClick={()=>{setSound(!sound);if(!sound)unlockAudio()}}>{sound?<Volume2 size={19}/>:<VolumeX size={19}/>}</button></div><div className="timer-exercise"><p>{workout?.data.name||'SEU ESPAÇO DE TREINO'}</p><h2>{name}</h2><span>{exercise?`${exercise.sets} séries · ${exercise.reps} repetições · ${exercise.load} kg`:'No seu ritmo. Uma série de cada vez.'}</span></div><div className="clock-ring"><svg viewBox="0 0 240 240" aria-hidden="true"><circle cx="120" cy="120" r="109" className="ring-track"/><circle cx="120" cy="120" r="109" className="ring-fill" strokeDasharray={685} strokeDashoffset={685*(1-ring)}/></svg><div className="clock-inner"><span>{mode==='rest'?'INTERVALO':'TEMPO DO EXERCÍCIO'}</span><output aria-label={mode==='rest'?'Tempo restante do intervalo':'Tempo do exercício'}>{formatTimer(remaining,mode==='rest')}</output><small><span className={running?'pulse-dot':''}/>{running?'Em andamento':mode==='rest'&&remaining===0?'Intervalo concluído':'Aguardando você'}</small></div></div>{exercise&&onFinish&&<div className="timer-settings">
+   {original?.notes&&<p>Orientação do instrutor · {original.notes}</p>}
+   {original?.alternative&&<button type="button" className="secondary" disabled={saving} onClick={()=>setAlternatives(rows=>({...rows,[index]:!rows[index]}))}>
+     {alternatives[index]?'Voltar ao exercício original':'Aparelho ocupado · usar '+original.alternative.name}
+   </button>}
+   {workout?.data.coach&&<div key={index}>
+     <label><input type="checkbox" checked={!!feedback[index]} disabled={saving} onChange={e=>setFeedback(rows=>{
+       if(e.target.checked)return {...rows,[index]:{exercise:index,name:exercise.name,note:''}};
+       const next={...rows};delete next[index];return next;
+     })}/> Tive dificuldade</label>
+     {feedback[index]&&<>
+     <label>Observação sobre o exercício<textarea maxLength={300} value={feedback[index]?.note||''} onChange={e=>setFeedback(rows=>({...rows,[index]:{exercise:index,name:exercise.name,note:e.target.value}}))}/></label>
+     <p>Marque o compartilhamento ao salvar para enviar ao instrutor.</p>
+   </>}</div>}
    {last&&<p>Última sessão · {last.load} kg × {last.reps}</p>}
    <label>Carga usada (kg)<input type="number" min="0" max="2000" step="any" value={load} onChange={e=>setLoad(e.target.value)}/></label>
    <label>Repetições feitas<input type="number" min="1" max="1000" value={reps} onChange={e=>setReps(e.target.value)}/></label>
