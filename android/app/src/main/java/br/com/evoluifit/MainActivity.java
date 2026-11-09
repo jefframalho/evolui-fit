@@ -1,6 +1,9 @@
 package br.com.evoluifit;
 
 import android.app.Activity;
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.webkit.PermissionRequest;
 import android.content.ClipData;
 import android.provider.MediaStore;
 import android.webkit.ValueCallback;
@@ -26,6 +29,8 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity {
     private static final int STORY_PICKER = 410;
+    private static final int CAMERA_PERMISSION = 411;
+    private PermissionRequest pendingCamera;
     private ValueCallback<Uri[]> photoCallback;
     private Uri cameraPhoto;
     private WebView web;
@@ -54,6 +59,23 @@ public class MainActivity extends Activity {
         settings.setMediaPlaybackRequiresUserGesture(true);
         WebView.setWebContentsDebuggingEnabled(false);
         web.setWebChromeClient(new WebChromeClient(){
+            @Override public void onPermissionRequest(PermissionRequest request){
+                String[] resources = request.getResources();
+                if(!trustedCameraRequest(request) || resources.length != 1
+                    || !PermissionRequest.RESOURCE_VIDEO_CAPTURE.equals(resources[0])){
+                    request.deny();
+                    return;
+                }
+                if(checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED){
+                    request.grant(new String[]{PermissionRequest.RESOURCE_VIDEO_CAPTURE});
+                }else if(pendingCamera == null){
+                    pendingCamera = request;
+                    requestPermissions(new String[]{Manifest.permission.CAMERA},CAMERA_PERMISSION);
+                }else request.deny();
+            }
+            @Override public void onPermissionRequestCanceled(PermissionRequest request){
+                if(pendingCamera == request)pendingCamera = null;
+            }
             @Override public boolean onShowFileChooser(WebView view, ValueCallback<Uri[]> callback, FileChooserParams params){
                 String[] types = params.getAcceptTypes();
                 if(types.length != 1 || !"image/*".equals(types[0]))return false;
@@ -84,6 +106,23 @@ public class MainActivity extends Activity {
         });
         web.setDownloadListener((url,userAgent,contentDisposition,mimeType,contentLength)->{Uri uri=Uri.parse(url);if("https".equals(uri.getScheme()))openExternal(uri);});
         if(state==null)web.loadUrl(HOME);else web.restoreState(state);
+    }
+    private boolean trustedCameraRequest(PermissionRequest request){
+        Uri origin = request.getOrigin();
+        String currentPage = web.getUrl();
+        return "https".equals(origin.getScheme()) && "jefframalho.github.io".equals(origin.getHost())
+            && (origin.getPort() == -1 || origin.getPort() == 443)
+            && currentPage != null && currentPage.startsWith(HOME);
+    }
+    @Override public void onRequestPermissionsResult(int requestCode,String[] permissions,int[] grantResults){
+        super.onRequestPermissionsResult(requestCode,permissions,grantResults);
+        if(requestCode != CAMERA_PERMISSION || pendingCamera == null)return;
+        PermissionRequest request = pendingCamera;
+        pendingCamera = null;
+        if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED
+            && trustedCameraRequest(request)){
+            request.grant(new String[]{PermissionRequest.RESOURCE_VIDEO_CAPTURE});
+        }else request.deny();
     }
     private boolean openCamera(){
         try{
@@ -132,5 +171,5 @@ public class MainActivity extends Activity {
     }
     @Override public void onSaveInstanceState(Bundle out){super.onSaveInstanceState(out);web.saveState(out);}
     @Override public void onBackPressed(){if(web.canGoBack())web.goBack();else super.onBackPressed();}
-    @Override public void onDestroy(){completePhoto(null);if(web!=null){web.stopLoading();web.destroy();}super.onDestroy();}
+    @Override public void onDestroy(){if(pendingCamera!=null){pendingCamera.deny();pendingCamera=null;}completePhoto(null);if(web!=null){web.stopLoading();web.destroy();}super.onDestroy();}
 }
