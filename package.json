@@ -17,7 +17,8 @@
     "test:timer": "node scripts/check-timer.mjs",
     "test:week": "node scripts/check-week.mjs",
     "test:coach-validation": "node scripts/check-coach-validation.mjs",
-    "test:billing-math": "node scripts/check-billing-math.mjs"
+    "test:billing-math": "node scripts/check-billing-math.mjs",
+    "test:video": "node scripts/check-video-embed.mjs"
   },
   "dependencies": {
     "firebase": "^13.1.0",

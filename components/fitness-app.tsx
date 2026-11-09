@@ -11,6 +11,7 @@ import InstructorPortal from './instructor-portal';
 import StudentCoach from './student-coach';
 import {instructorService} from '../lib/instructor-data';
 import AppDownload from './app-download';
+import {loadExerciseLibrary} from '../lib/exercise-library';
 import {firebaseBackend,legacyBackend,friendlyError} from '../lib/fitness-backend';
 type Services={auth:Auth;db:Firestore};
 export default function FitnessApp({requireFirebase=false}:{requireFirebase?:boolean}){
@@ -27,6 +28,7 @@ export default function FitnessApp({requireFirebase=false}:{requireFirebase?:boo
  },[requireFirebase]);
  const backend=useMemo(()=>services&&user?firebaseBackend(services.db,user):legacyBackend,[services,user?.uid]);
  const coachService=useMemo(()=>services&&user?instructorService(services.db,user.uid):null,[services,user?.uid]);
+ useEffect(()=>{if(services&&user)loadExerciseLibrary(services.db,user.uid)},[services,user?.uid]);
  async function logout(){if(!services)return;try{const {signOut}=await import('firebase/auth');await signOut(services.auth);setError('');setMessage('')}catch(e){setError(friendlyError(e))}}
  async function submit(e:React.FormEvent<HTMLFormElement>){e.preventDefault();if(!services)return;const form=new FormData(e.currentTarget);const email=String(form.get('email')||'').trim(),password=String(form.get('password')||'');setBusy(true);setError('');setMessage('');try{
  const auth=await import('firebase/auth');
