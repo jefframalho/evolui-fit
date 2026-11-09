@@ -30,6 +30,7 @@ import android.widget.Toast;
 public class MainActivity extends Activity {
     private static final int STORY_PICKER = 410;
     private static final int CAMERA_PERMISSION = 411;
+    private static final int NATIVE_CAMERA_PERMISSION = 412;
     private PermissionRequest pendingCamera;
     private ValueCallback<Uri[]> photoCallback;
     private Uri cameraPhoto;
@@ -81,7 +82,13 @@ public class MainActivity extends Activity {
                 if(types.length != 1 || !"image/*".equals(types[0]))return false;
                 if(photoCallback != null){callback.onReceiveValue(null);return true;}
                 photoCallback = callback;
-                if(params.isCaptureEnabled() && openCamera())return true;
+                if(params.isCaptureEnabled()){
+                    if(checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
+                        requestPermissions(new String[]{Manifest.permission.CAMERA},NATIVE_CAMERA_PERMISSION);
+                        return true;
+                    }
+                    if(openCamera())return true;
+                }
                 try{
                     Intent gallery = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                     gallery.addCategory(Intent.CATEGORY_OPENABLE);
@@ -116,6 +123,13 @@ public class MainActivity extends Activity {
     }
     @Override public void onRequestPermissionsResult(int requestCode,String[] permissions,int[] grantResults){
         super.onRequestPermissionsResult(requestCode,permissions,grantResults);
+        if(requestCode == NATIVE_CAMERA_PERMISSION){
+            if(photoCallback != null && grantResults.length > 0
+                && grantResults[0] == PackageManager.PERMISSION_GRANTED && openCamera())return;
+            completePhoto(null);
+            Toast.makeText(this,"Câmera indisponível. Confira a permissão ou use a galeria.",Toast.LENGTH_LONG).show();
+            return;
+        }
         if(requestCode != CAMERA_PERMISSION || pendingCamera == null)return;
         PermissionRequest request = pendingCamera;
         pendingCamera = null;
