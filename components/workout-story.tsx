@@ -8,6 +8,19 @@ const filters = [
   {name:'Modo Atleta', value:'contrast(1.22) saturate(0.88) brightness(1.05)'},
   {name:'Golden Pump', value:'sepia(0.22) saturate(1.22) brightness(1.08)'},
   {name:'Ferro P&B', value:'grayscale(1) contrast(1.25) brightness(1.07)'},
+  {name:'Selfie Suave', value:'brightness(1.14) contrast(0.91) saturate(1.08)'},
+  {name:'Brilho Pós-Treino', value:'brightness(1.18) contrast(1.08) saturate(1.18)'},
+  {name:'Luz de Estúdio', value:'brightness(1.10) contrast(1.14) saturate(0.94)'},
+  {name:'Definição Pro', value:'contrast(1.36) brightness(1.03) saturate(0.82)'},
+  {name:'Sombra de Ferro', value:'brightness(0.86) contrast(1.32) saturate(0.75)'},
+  {name:'Aço Frio', value:'sepia(0.16) hue-rotate(165deg) saturate(0.75) contrast(1.16)'},
+  {name:'Bronze', value:'sepia(0.32) saturate(1.25) contrast(1.08)'},
+  {name:'Âmbar', value:'sepia(0.48) saturate(1.42) brightness(1.06)'},
+  {name:'Rosé', value:'sepia(0.25) hue-rotate(320deg) saturate(1.25) brightness(1.08)'},
+  {name:'Energia Neon', value:'saturate(1.55) contrast(1.16) brightness(1.08)'},
+  {name:'Filme Vintage', value:'sepia(0.38) saturate(0.82) contrast(0.89) brightness(1.11)'},
+  {name:'P&B Suave', value:'grayscale(1) contrast(0.87) brightness(1.19)'},
+  {name:'P&B Noturno', value:'grayscale(1) contrast(1.48) brightness(0.83)'},
 ];
 
 export default function WorkoutStory({workoutName,exerciseCount}:{workoutName?:string;exerciseCount?:number}){
@@ -167,7 +180,7 @@ export default function WorkoutStory({workoutName,exerciseCount}:{workoutName?:s
       if(file){setPhoto(file);setStory(null);setMessage('')}
     }}/></label>}
     {(photo||card)&&<>
-      {!card&&<label>Filtro<select value={filter} onChange={event=>{setFilter(Number(event.target.value));setStory(null)}}>
+      {!card&&<label>Filtro da foto · {filters.length} opções<select value={filter} onChange={event=>{setFilter(Number(event.target.value));setStory(null)}}>
         {filters.map((option,index)=><option key={option.name} value={index}>{option.name}</option>)}
       </select></label>}
       <label>Legenda<input value={caption} maxLength={120} onChange={event=>{setCaption(event.target.value);setStory(null)}}/></label>
