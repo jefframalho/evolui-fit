@@ -10,7 +10,8 @@ const filters = [
   {name:'Ferro P&B', value:'grayscale(1) contrast(1.25) brightness(1.07)'},
 ];
 
-export default function WorkoutStory({workoutName}:{workoutName?:string}){
+export default function WorkoutStory({workoutName,exerciseCount}:{workoutName?:string;exerciseCount?:number}){
+  const [card,setCard]=useState(false);
   const [open,setOpen]=useState(false);
   const [photo,setPhoto]=useState<File|null>(null);
   const [caption,setCaption]=useState('');
@@ -66,21 +67,35 @@ export default function WorkoutStory({workoutName}:{workoutName?:string}){
   }
 
   useEffect(()=>{
-    if(!open||!photo)return;
+    if(!open||(!photo&&!card))return;
     let current=true;
-    const url=URL.createObjectURL(photo);
+    const url=photo&&!card?URL.createObjectURL(photo):null;
     const image=new Image();
-    image.onload=()=>{
+    const render=()=>{
       if(!current)return;
       const target=canvas.current;
       const context=target?.getContext('2d');
       if(!target||!context)return;
       const {width,height}=target;
+      if(url){
       const scale=Math.max(width/image.naturalWidth,height/image.naturalHeight);
       const w=image.naturalWidth*scale,h=image.naturalHeight*scale;
       context.filter=filters[filter].value;
       context.drawImage(image,(width-w)/2,(height-h)/2,w,h);
       context.filter='none';
+      }else{
+        context.fillStyle='#172016';
+        context.fillRect(0,0,width,height);
+        context.fillStyle='#ceeb58';
+        context.textAlign='center';
+        context.font='bold 55px system-ui';
+        context.fillText('TREINO CONCLUÍDO',width/2,730);
+        context.fillStyle='#fff';
+        context.font='bold 78px system-ui';
+        context.fillText(workoutName||'Meu treino',width/2,900,900);
+        context.font='42px system-ui';
+        context.fillText(exerciseCount+' '+(exerciseCount===1?'exercício concluído':'exercícios concluídos'),width/2,1040);
+      }
 
       const shade=context.createLinearGradient(0,1160,0,height);
       shade.addColorStop(0,'transparent');
@@ -109,9 +124,9 @@ export default function WorkoutStory({workoutName}:{workoutName?:string}){
       },'image/jpeg',0.93);
     };
     image.onerror=()=>{if(current)setMessage('Não foi possível abrir a foto. Experimente uma imagem JPG ou PNG.')};
-    image.src=url;
-    return ()=>{current=false;URL.revokeObjectURL(url)};
-  },[open,photo,filter,caption]);
+    if(url){image.onload=render;image.src=url}else render();
+    return ()=>{current=false;if(url)URL.revokeObjectURL(url)};
+  },[open,photo,filter,caption,card,workoutName,exerciseCount]);
 
   async function share(){
     if(!story)return;
@@ -133,34 +148,34 @@ export default function WorkoutStory({workoutName}:{workoutName?:string}){
     setTimeout(()=>URL.revokeObjectURL(url),30000);
   }
 
-  if(!open)return <button className="secondary" onClick={()=>{
+  if(!open)return <><button className="secondary" onClick={()=>{
     setCaption(workoutName ? 'Treino concluído · '+workoutName.slice(0,100)+' 💪' : 'Treino concluído 💪');
     setOpen(true);
-  }}><Camera size={16}/> Tirar foto para o Story</button>;
+  }}><Camera size={16}/> Tirar foto para o Story</button>{exerciseCount!==undefined&&<button className="secondary" onClick={()=>{setCard(true);setCaption('');setOpen(true)}}>Criar cartão sem foto</button>}</>;
 
   return <section className="panel settings">
     <h2>Foto do treino</h2>
-    {cameraOpen?<div>
+    {!card&&(cameraOpen?<div>
       <video ref={video} autoPlay muted playsInline onPlaying={()=>setCameraReady(true)}
         style={{display:'block',width:'100%',maxWidth:420,borderRadius:16}} aria-label="Prévia da câmera"/>
       <button className="primary" disabled={!cameraReady} onClick={capturePhoto}><Camera size={16}/> Capturar foto</button>
       <button className="secondary" onClick={()=>{setCameraReady(false);setFacing(facing==='user'?'environment':'user')}}>Trocar câmera</button>
       <button className="secondary" onClick={()=>{setCameraReady(false);setCameraOpen(false)}}>Cancelar câmera</button>
-    </div>:<button className="primary" onClick={()=>{setMessage('');setCameraReady(false);setCameraOpen(true)}}><Camera size={16}/> Abrir câmera</button>}
-    <label>Escolher da galeria<input type="file" accept="image/*" onChange={event=>{
+    </div>:<button className="primary" onClick={()=>{setMessage('');setCameraReady(false);setCameraOpen(true)}}><Camera size={16}/> Abrir câmera</button>)}
+    {!card&&<label>Escolher da galeria<input type="file" accept="image/*" onChange={event=>{
       const file=event.target.files?.[0];
       if(file){setPhoto(file);setStory(null);setMessage('')}
-    }}/></label>
-    {photo&&<>
-      <label>Filtro<select value={filter} onChange={event=>{setFilter(Number(event.target.value));setStory(null)}}>
+    }}/></label>}
+    {(photo||card)&&<>
+      {!card&&<label>Filtro<select value={filter} onChange={event=>{setFilter(Number(event.target.value));setStory(null)}}>
         {filters.map((option,index)=><option key={option.name} value={index}>{option.name}</option>)}
-      </select></label>
+      </select></label>}
       <label>Legenda<input value={caption} maxLength={120} onChange={event=>{setCaption(event.target.value);setStory(null)}}/></label>
       <canvas ref={canvas} width={1080} height={1920} aria-label="Prévia do Story" style={{display:'block',width:'100%',maxWidth:270,height:'auto',borderRadius:16}}/>
       <button className="primary" disabled={!story} onClick={share}>Compartilhar foto</button>
       <button className="secondary" disabled={!story} onClick={download}>Baixar imagem</button>
     </>}
     {message&&<p role="status">{message}</p>}
-    <button className="secondary" onClick={()=>{setOpen(false);setCameraOpen(false);setCameraReady(false);setPhoto(null);setStory(null);setFilter(0);setMessage('')}}>Fechar</button>
+    <button className="secondary" onClick={()=>{setOpen(false);setCard(false);setCameraOpen(false);setCameraReady(false);setPhoto(null);setStory(null);setFilter(0);setMessage('')}}>Fechar</button>
   </section>;
 }
