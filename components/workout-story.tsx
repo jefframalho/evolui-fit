@@ -175,6 +175,13 @@ export default function WorkoutStory({workoutName,exerciseCount}:{workoutName?:s
       <button className="secondary" onClick={()=>{setCameraReady(false);setFacing(facing==='user'?'environment':'user')}}>Trocar câmera</button>
       <button className="secondary" onClick={()=>{setCameraReady(false);setCameraOpen(false)}}>Cancelar câmera</button>
     </div>:<button className="primary" onClick={()=>{setMessage('');setCameraReady(false);setCameraOpen(true)}}><Camera size={16}/> Abrir câmera</button>)}
+    {!card&&!cameraOpen&&<label>Câmera do celular
+      <input type="file" accept="image/*" capture="environment" onChange={event=>{
+        const file=event.target.files?.[0];
+        if(file){setPhoto(file);setStory(null);setMessage('')}
+        event.target.value='';
+      }}/>
+    </label>}
     {!card&&<label>Escolher da galeria<input type="file" accept="image/*" onChange={event=>{
       const file=event.target.files?.[0];
       if(file){setPhoto(file);setStory(null);setMessage('')}
