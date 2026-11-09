@@ -27,6 +27,7 @@ export default function WorkoutStory({workoutName,exerciseCount}:{workoutName?:s
   const [card,setCard]=useState(false);
   const [open,setOpen]=useState(false);
   const [photo,setPhoto]=useState<File|null>(null);
+  const [after,setAfter]=useState<File|null>(null);
   const [caption,setCaption]=useState('');
   const [filter,setFilter]=useState(0);
   const [story,setStory]=useState<File|null>(null);
@@ -83,7 +84,9 @@ export default function WorkoutStory({workoutName,exerciseCount}:{workoutName?:s
     if(!open||(!photo&&!card))return;
     let current=true;
     const url=photo&&!card?URL.createObjectURL(photo):null;
+    const afterUrl=url&&after?URL.createObjectURL(after):null;
     const image=new Image();
+    const afterImage=new Image();
     const render=()=>{
       if(!current)return;
       const target=canvas.current;
@@ -91,11 +94,32 @@ export default function WorkoutStory({workoutName,exerciseCount}:{workoutName?:s
       if(!target||!context)return;
       const {width,height}=target;
       if(url){
-      const scale=Math.max(width/image.naturalWidth,height/image.naturalHeight);
-      const w=image.naturalWidth*scale,h=image.naturalHeight*scale;
-      context.filter=filters[filter].value;
-      context.drawImage(image,(width-w)/2,(height-h)/2,w,h);
-      context.filter='none';
+        const draw=(source:HTMLImageElement,y:number,panelHeight:number)=>{
+          const scale=Math.max(width/source.naturalWidth,panelHeight/source.naturalHeight);
+          const w=source.naturalWidth*scale,h=source.naturalHeight*scale;
+          context.save();
+          context.beginPath();
+          context.rect(0,y,width,panelHeight);
+          context.clip();
+          context.filter=filters[filter].value;
+          context.drawImage(source,(width-w)/2,y+(panelHeight-h)/2,w,h);
+          context.restore();
+        };
+        if(afterUrl){
+          const panelHeight=height/2;
+          draw(image,0,panelHeight);
+          draw(afterImage,panelHeight,panelHeight);
+          context.fillStyle='#ceeb58';
+          context.fillRect(0,panelHeight-3,width,6);
+          context.font='bold 34px system-ui';
+          context.textAlign='left';
+          for(const [label,y] of [['ANTES',220],['DEPOIS',panelHeight+70]] as const){
+            context.fillStyle='#172016';
+            context.fillRect(48,y-43,190,56);
+            context.fillStyle='#ceeb58';
+            context.fillText(label,66,y);
+          }
+        }else draw(image,0,height);
       }else{
         context.fillStyle='#172016';
         context.fillRect(0,0,width,height);
@@ -137,9 +161,20 @@ export default function WorkoutStory({workoutName,exerciseCount}:{workoutName?:s
       },'image/jpeg',0.93);
     };
     image.onerror=()=>{if(current)setMessage('Não foi possível abrir a foto. Experimente uma imagem JPG ou PNG.')};
-    if(url){image.onload=render;image.src=url}else render();
-    return ()=>{current=false;if(url)URL.revokeObjectURL(url)};
-  },[open,photo,filter,caption,card,workoutName,exerciseCount]);
+    if(url){
+      image.onload=()=>{
+        if(!current)return;
+        if(afterUrl){afterImage.onload=render;afterImage.onerror=image.onerror;afterImage.src=afterUrl}
+        else render();
+      };
+      image.src=url;
+    }else render();
+    return ()=>{
+      current=false;
+      if(url)URL.revokeObjectURL(url);
+      if(afterUrl)URL.revokeObjectURL(afterUrl);
+    };
+  },[open,photo,after,filter,caption,card,workoutName,exerciseCount]);
 
   async function share(){
     if(!story)return;
@@ -182,10 +217,18 @@ export default function WorkoutStory({workoutName,exerciseCount}:{workoutName?:s
         event.target.value='';
       }}/>
     </label>}
-    {!card&&<label>Escolher da galeria<input type="file" accept="image/*" onChange={event=>{
+    {!card&&<label>{after?'Foto do antes · galeria':'Escolher da galeria'}<input type="file" accept="image/*" onChange={event=>{
       const file=event.target.files?.[0];
       if(file){setPhoto(file);setStory(null);setMessage('')}
     }}/></label>}
+    {!card&&photo&&<>
+      <label>{after?'Trocar foto do depois':'Adicionar foto do depois · galeria'}<input type="file" accept="image/*" onChange={event=>{
+        const file=event.target.files?.[0];
+        if(file){setAfter(file);setStory(null);setMessage('')}
+        event.target.value='';
+      }}/></label>
+      {after&&<button className="secondary" onClick={()=>{setAfter(null);setStory(null);setMessage('')}}>Remover foto do depois</button>}
+    </>}
     {(photo||card)&&<>
       {!card&&<label>Filtro da foto · {filters.length} opções<select value={filter} onChange={event=>{setFilter(Number(event.target.value));setStory(null)}}>
         {filters.map((option,index)=><option key={option.name} value={index}>{option.name}</option>)}
@@ -196,6 +239,6 @@ export default function WorkoutStory({workoutName,exerciseCount}:{workoutName?:s
       <button className="secondary" disabled={!story} onClick={download}>Baixar imagem</button>
     </>}
     {message&&<p role="status">{message}</p>}
-    <button className="secondary" onClick={()=>{setOpen(false);setCard(false);setCameraOpen(false);setCameraReady(false);setPhoto(null);setStory(null);setFilter(0);setMessage('')}}>Fechar</button>
+    <button className="secondary" onClick={()=>{setOpen(false);setCard(false);setCameraOpen(false);setCameraReady(false);setPhoto(null);setAfter(null);setStory(null);setFilter(0);setMessage('')}}>Fechar</button>
   </section>;
 }
