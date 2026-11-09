@@ -13,14 +13,16 @@ const seriesSchema=z.object({
   name:z.string().min(1).max(100),exercise:z.number().int().min(0).max(79),
   load:z.number().min(0).max(2000),reps:z.number().int().min(1).max(1000)
 });
+const feedbackSchema=z.object({exercise:z.number().int().min(0).max(79),name:z.string().min(1).max(100),note:z.string().trim().min(1).max(300)});
+export type WorkoutFeedback=z.infer<typeof feedbackSchema>;
 const sessionSchema=z.object({date:z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  finishedAt:z.number().int().positive(),title:z.string().min(1).max(100),series:z.array(seriesSchema).min(1).max(500)});
+  finishedAt:z.number().int().positive(),title:z.string().min(1).max(100),series:z.array(seriesSchema).min(1).max(500),planId:z.string().min(1).max(128).optional(),feedback:z.array(feedbackSchema).max(80).optional()});
 export type Series=z.infer<typeof seriesSchema>;
-export type WorkoutSession={id:string;date:string;finishedAt:number;title:string;series:Series[]};
+export type WorkoutSession={id:string;date:string;finishedAt:number;title:string;series:Series[];planId?:string;feedback?:WorkoutFeedback[]};
 
 export function assignedWorkout(plan:Plan,link:CoachLink):FitnessEntry{
   return {id:link.id+'_'+plan.id,kind:'workout',date:fitnessToday(),
-    data:{name:plan.title,exercises:plan.exercises,coach:link}};
+    data:{name:plan.title,exercises:plan.exercises,coach:link,planId:plan.id}};
 }
 
 export async function todayAssignments(db:Firestore,uid:string){

@@ -64,8 +64,8 @@ export default function Dashboard({backend=legacyBackend,viewer,onSignOut,onVeri
  {!completedStory&&<WorkoutTimer key={activeWorkout ? resume?.id||activeWorkout.id : 'manual'} workout={activeWorkout} initialIndex={timerExercise}
    storageKey={activeWorkout&&resume&&sessionKey ? sessionKey+':'+resume.id : undefined}
    previousSeries={latestSeries(sessions)}
-   onFinish={cloud&&activeWorkout&&resume ? async(series,share)=>{
-     const session={id:resume.id,date:today(),finishedAt:Date.now(),title:String(activeWorkout.data.name).slice(0,100),series};
+   onFinish={cloud&&activeWorkout&&resume ? async(series,share,feedback)=>{
+     const session={id:resume.id,date:today(),finishedAt:Date.now(),title:String(activeWorkout.data.name).slice(0,100),series,...(activeWorkout.data.planId?{planId:activeWorkout.data.planId}:{}),...(feedback.length?{feedback}:{})};
      await saveWorkoutSession(cloud.db,cloud.uid,session,share?activeWorkout.data.coach:undefined);
      setSessions(rows=>[session,...rows.filter(row=>row.id!==session.id)]);
      try{localStorage.removeItem(sessionKey);localStorage.removeItem(sessionKey+':'+resume.id)}catch{}
