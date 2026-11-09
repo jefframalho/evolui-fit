@@ -2,8 +2,10 @@
 import {useState} from 'react';
 import {useExerciseLibrary,videoFor} from '../lib/exercise-library';
 import {videoSource} from '../lib/video-embed';
+import {animationFor} from '../lib/exercise-animations';
+import ExerciseAnimation from './exercise-animation';
 export default function ExerciseDemo({name}:{name:string}){
- const [open,setOpen]=useState(false),[showVideo,setShowVideo]=useState(false);
+ const [open,setOpen]=useState(false),[showVideo,setShowVideo]=useState(false),[showAnimation,setShowAnimation]=useState(false);
  const library=useExerciseLibrary();
  const source=videoSource(videoFor(library,name));
  const exercise=name.toLowerCase();
@@ -11,7 +13,8 @@ export default function ExerciseDemo({name}:{name:string}){
  const bench=/^supino reto( com barra)?$/.test(exercise);
  const press=/^leg press( 45°?)?$/.test(exercise);
  const builtIn=squat||bench||press;
- if(!builtIn&&!source)return null;
+ const animation=builtIn?null:animationFor(name);
+ if(!builtIn&&!source&&!animation)return null;
  const inAndroidApp=typeof navigator!=='undefined'&&navigator.userAgent.includes('EvoluiFitAndroid');
  const external=source&&(source.kind==='link'||(source.kind==='embed'&&inAndroidApp));
  return <section className="panel settings">
@@ -20,6 +23,10 @@ export default function ExerciseDemo({name}:{name:string}){
  :<button className="secondary" type="button" aria-expanded={showVideo} onClick={()=>setShowVideo(!showVideo)}>{showVideo?'Fechar vídeo':'Ver vídeo'}</button>}
  {showVideo&&source.kind==='embed'&&<iframe title={'Vídeo: '+name} src={source.url} loading="lazy" allow="encrypted-media; picture-in-picture; fullscreen" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" style={{width:'100%',aspectRatio:'16 / 9',border:0,borderRadius:12,marginTop:10}}/>}
  {showVideo&&source.kind==='file'&&<video src={source.url} controls loop playsInline preload="metadata" aria-label={'Vídeo: '+name} style={{width:'100%',maxHeight:'70vh',borderRadius:12,marginTop:10,background:'#000'}}/>}
+ </div>}
+ {animation&&<div style={source?{marginTop:10}:undefined}>
+ <button className="secondary" type="button" aria-expanded={showAnimation} onClick={()=>setShowAnimation(!showAnimation)}>{showAnimation?'Fechar execução':'Ver execução'}</button>
+ {showAnimation&&<ExerciseAnimation animation={animation}/>}
  </div>}
  {builtIn&&<div style={source?{marginTop:10}:undefined}>
  <button className="secondary" type="button" aria-expanded={open} onClick={()=>setOpen(!open)}>{open?'Fechar demonstração':'Ver execução'}</button>
