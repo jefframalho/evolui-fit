@@ -17,7 +17,53 @@ export default function WorkoutStory({workoutName}:{workoutName?:string}){
   const [filter,setFilter]=useState(0);
   const [story,setStory]=useState<File|null>(null);
   const [message,setMessage]=useState('');
+  const [cameraOpen,setCameraOpen]=useState(false);
+  const [cameraReady,setCameraReady]=useState(false);
+  const [facing,setFacing]=useState<'user'|'environment'>('user');
+  const video=useRef<HTMLVideoElement>(null);
   const canvas=useRef<HTMLCanvasElement>(null);
+
+  useEffect(()=>{
+    if(!cameraOpen)return;
+    let active=true;
+    let stream:MediaStream|undefined;
+    async function startCamera(){
+      try{
+        stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:facing}},audio:false});
+        if(!active){stream.getTracks().forEach(track=>track.stop());return}
+        const preview=video.current;
+        if(!preview)return;
+        preview.srcObject=stream;
+        await preview.play();
+      }catch(error){
+        if(!active)return;
+        setCameraOpen(false);
+        setMessage(error instanceof DOMException&&error.name==='NotAllowedError'
+          ? 'Permita o acesso à câmera nas configurações do aplicativo ou do site e tente novamente.'
+          : 'Não foi possível abrir a câmera. Você também pode escolher uma foto da galeria.');
+      }
+    }
+    void startCamera();
+    return ()=>{active=false;stream?.getTracks().forEach(track=>track.stop())};
+  },[cameraOpen,facing]);
+
+  function capturePhoto(){
+    const preview=video.current;
+    if(!preview?.videoWidth||!preview.videoHeight)return;
+    const frame=document.createElement('canvas');
+    frame.width=preview.videoWidth;
+    frame.height=preview.videoHeight;
+    const context=frame.getContext('2d');
+    if(!context)return;
+    context.drawImage(preview,0,0);
+    frame.toBlob(blob=>{
+      if(!blob)return;
+      setPhoto(new File([blob],'treino.jpg',{type:'image/jpeg'}));
+      setStory(null);
+      setCameraReady(false);
+      setCameraOpen(false);
+    },'image/jpeg',0.93);
+  }
 
   useEffect(()=>{
     if(!open||!photo)return;
@@ -94,10 +140,13 @@ export default function WorkoutStory({workoutName}:{workoutName?:string}){
 
   return <section className="panel settings">
     <h2>Foto do treino</h2>
-    <label>Tirar foto<input type="file" accept="image/*" capture="user" onChange={event=>{
-      const file=event.target.files?.[0];
-      if(file){setPhoto(file);setStory(null);setMessage('')}
-    }}/></label>
+    {cameraOpen?<div>
+      <video ref={video} autoPlay muted playsInline onPlaying={()=>setCameraReady(true)}
+        style={{display:'block',width:'100%',maxWidth:420,borderRadius:16}} aria-label="Prévia da câmera"/>
+      <button className="primary" disabled={!cameraReady} onClick={capturePhoto}><Camera size={16}/> Capturar foto</button>
+      <button className="secondary" onClick={()=>{setCameraReady(false);setFacing(facing==='user'?'environment':'user')}}>Trocar câmera</button>
+      <button className="secondary" onClick={()=>{setCameraReady(false);setCameraOpen(false)}}>Cancelar câmera</button>
+    </div>:<button className="primary" onClick={()=>{setMessage('');setCameraReady(false);setCameraOpen(true)}}><Camera size={16}/> Abrir câmera</button>}
     <label>Escolher da galeria<input type="file" accept="image/*" onChange={event=>{
       const file=event.target.files?.[0];
       if(file){setPhoto(file);setStory(null);setMessage('')}
@@ -112,6 +161,6 @@ export default function WorkoutStory({workoutName}:{workoutName?:string}){
       <button className="secondary" disabled={!story} onClick={download}>Baixar imagem</button>
     </>}
     {message&&<p role="status">{message}</p>}
-    <button className="secondary" onClick={()=>{setOpen(false);setPhoto(null);setStory(null);setFilter(0);setMessage('')}}>Fechar</button>
+    <button className="secondary" onClick={()=>{setOpen(false);setCameraOpen(false);setCameraReady(false);setPhoto(null);setStory(null);setFilter(0);setMessage('')}}>Fechar</button>
   </section>;
 }
