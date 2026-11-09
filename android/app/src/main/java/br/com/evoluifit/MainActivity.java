@@ -1,6 +1,13 @@
 package br.com.evoluifit;
 
 import android.app.Activity;
+import android.content.ClipData;
+import android.provider.MediaStore;
+import android.webkit.ValueCallback;
+import android.webkit.WebChromeClient;
+import androidx.core.content.FileProvider;
+import java.io.File;
+import java.io.IOException;
 import android.os.Bundle;
 import android.content.Intent;
 import android.net.Uri;
@@ -18,6 +25,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
+    private static final int STORY_PICKER = 410;
+    private ValueCallback<Uri[]> photoCallback;
+    private Uri cameraPhoto;
     private WebView web;
     private LinearLayout root;
     private LinearLayout errorPanel;
@@ -43,6 +53,25 @@ public class MainActivity extends Activity {
         settings.setUserAgentString(settings.getUserAgentString()+" EvoluiFitAndroid/1.1");
         settings.setMediaPlaybackRequiresUserGesture(true);
         WebView.setWebContentsDebuggingEnabled(false);
+        web.setWebChromeClient(new WebChromeClient(){
+            @Override public boolean onShowFileChooser(WebView view, ValueCallback<Uri[]> callback, FileChooserParams params){
+                String[] types = params.getAcceptTypes();
+                if(types.length != 1 || !"image/*".equals(types[0]))return false;
+                if(photoCallback != null){callback.onReceiveValue(null);return true;}
+                photoCallback = callback;
+                if(params.isCaptureEnabled() && openCamera())return true;
+                try{
+                    Intent gallery = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                    gallery.addCategory(Intent.CATEGORY_OPENABLE);
+                    gallery.setType("image/*");
+                    startActivityForResult(gallery, STORY_PICKER);
+                }catch(android.content.ActivityNotFoundException error){
+                    completePhoto(null);
+                    Toast.makeText(MainActivity.this,"Nenhuma galeria disponível.",Toast.LENGTH_LONG).show();
+                }
+                return true;
+            }
+        });
         web.setWebViewClient(new WebViewClient(){
             @Override public boolean shouldOverrideUrlLoading(WebView view,WebResourceRequest request){
                 Uri url=request.getUrl();
@@ -55,6 +84,40 @@ public class MainActivity extends Activity {
         });
         web.setDownloadListener((url,userAgent,contentDisposition,mimeType,contentLength)->{Uri uri=Uri.parse(url);if("https".equals(uri.getScheme()))openExternal(uri);});
         if(state==null)web.loadUrl(HOME);else web.restoreState(state);
+    }
+    private boolean openCamera(){
+        try{
+            File folder = new File(getCacheDir(), "story-photos");
+            if(!folder.isDirectory() && !folder.mkdirs())return false;
+            File[] previousPhotos = folder.listFiles();
+            if(previousPhotos != null){
+                long cutoff = System.currentTimeMillis() - 86400000L;
+                for(File file : previousPhotos)if(file.lastModified() < cutoff)file.delete();
+            }
+            File file = File.createTempFile("story-", ".jpg", folder);
+            cameraPhoto = FileProvider.getUriForFile(this,getPackageName()+".story-files",file);
+            Intent camera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            camera.putExtra(MediaStore.EXTRA_OUTPUT,cameraPhoto);
+            camera.setClipData(ClipData.newRawUri("Foto do treino",cameraPhoto));
+            camera.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            startActivityForResult(camera,STORY_PICKER);
+            return true;
+        }catch(IOException | android.content.ActivityNotFoundException | SecurityException error){
+            cameraPhoto = null;
+            return false;
+        }
+    }
+    @Override protected void onActivityResult(int requestCode,int resultCode,Intent data){
+        super.onActivityResult(requestCode,resultCode,data);
+        if(requestCode != STORY_PICKER)return;
+        Uri photo = resultCode == RESULT_OK ? (cameraPhoto != null ? cameraPhoto : data == null ? null : data.getData()) : null;
+        completePhoto(photo);
+    }
+    private void completePhoto(Uri photo){
+        ValueCallback<Uri[]> callback = photoCallback;
+        photoCallback = null;
+        cameraPhoto = null;
+        if(callback != null)callback.onReceiveValue(photo == null ? null : new Uri[]{photo});
     }
     private void openExternal(Uri uri){try{startActivity(new Intent(Intent.ACTION_VIEW,uri));}catch(Exception e){Toast.makeText(this,"Nenhum aplicativo disponível para abrir esse link.",Toast.LENGTH_LONG).show();}}
     private void showError(){
@@ -69,5 +132,5 @@ public class MainActivity extends Activity {
     }
     @Override public void onSaveInstanceState(Bundle out){super.onSaveInstanceState(out);web.saveState(out);}
     @Override public void onBackPressed(){if(web.canGoBack())web.goBack();else super.onBackPressed();}
-    @Override public void onDestroy(){if(web!=null){web.stopLoading();web.destroy();}super.onDestroy();}
+    @Override public void onDestroy(){completePhoto(null);if(web!=null){web.stopLoading();web.destroy();}super.onDestroy();}
 }
