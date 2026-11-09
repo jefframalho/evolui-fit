@@ -46,6 +46,18 @@ service cloud.firestore {
           && d.exercises is list && d.exercises.size() >= 1 && d.exercises.size() <= 50)
       );
     }
+    function validWorkoutSession(d) {
+      return d.date is string && d.date.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && d.finishedAt is int && d.finishedAt > 0
+        && d.title is string && d.title.size() > 0 && d.title.size() <= 100
+        && d.series is list && d.series.size() > 0 && d.series.size() <= 500;
+    }
+    match /users/{uid}/workoutSessions/{sessionId} {
+      allow read: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['date','finishedAt','title','series'])
+        && validWorkoutSession(request.resource.data);
+    }
     match /users/{uid}/records/{recordId} {
       allow get, list: if isOwner(uid);
       allow create: if isOwner(uid)
@@ -139,6 +151,14 @@ service cloud.firestore {
               ))
           );
         allow delete: if false;
+        match /workoutSessions/{sessionId} {
+          allow read: if professionalOwner(instructorUid);
+          allow create, update: if linkedStudent(instructorUid, studentId)
+            && request.resource.data.keys().hasOnly(['date','finishedAt','title','series','learnerUid'])
+            && request.resource.data.learnerUid == request.auth.uid
+            && (resource == null || resource.data.learnerUid == request.auth.uid)
+            && validWorkoutSession(request.resource.data);
+        }
         match /plans/{planId} {
           allow read: if professionalOwner(instructorUid) || linkedStudent(instructorUid, studentId);
           allow create, update: if professionalOwner(instructorUid) && exists(/databases/$(database)/documents/instructors/$(instructorUid)/students/$(studentId)) && validPlan(request.resource.data);

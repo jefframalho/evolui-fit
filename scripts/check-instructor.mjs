@@ -31,7 +31,21 @@ await assertFails(setDoc(doc(other,studentPath+'/evaluations/2026-12'),{month:'2
 await assertFails(setDoc(doc(coach,studentPath+'/evaluations/2026-12'),{month:'2026-12',weight:-1,notes:'',updatedAt:serverTimestamp()}));
 await assertSucceeds(setDoc(doc(learner,'users/learner-a/records/private'),{kind:'measure',date:'2026-11-07',data:{weight:80},createdAt:serverTimestamp()}));
 await assertFails(getDoc(doc(coach,'users/learner-a/records/private')));
+const session={date:'2026-11-07',finishedAt:Date.now(),title:'Ficha A',series:[{name:'Supino',exercise:0,load:30,reps:10}]};
+const privateSession='users/learner-a/workoutSessions/session-a';
+const sharedSession=studentPath+'/workoutSessions/session-a';
+const completion=writeBatch(learner);
+completion.set(doc(learner,privateSession),session);
+completion.set(doc(learner,sharedSession),{...session,learnerUid:'learner-a'});
+await assertSucceeds(completion.commit());
+await assertSucceeds(getDoc(doc(learner,privateSession)));
+await assertFails(getDoc(doc(coach,privateSession)));
+await assertSucceeds(getDoc(doc(coach,sharedSession)));
+await assertFails(getDoc(doc(other,sharedSession)));
+await assertFails(setDoc(doc(wrong,sharedSession),{...session,learnerUid:'learner-b'}));
+await assertFails(setDoc(doc(learner,privateSession),{...session,series:[]}));
 const unlink=writeBatch(learner);unlink.update(doc(learner,studentPath),{learnerUid:null});unlink.delete(doc(learner,'users/learner-a/instructorLinks/coach-a_student-a'));await assertSucceeds(unlink.commit());
 await assertFails(getDoc(doc(learner,studentPath+'/plans/plan-a')));await assertSucceeds(getDoc(doc(learner,'users/learner-a/records/private')));
+await assertFails(setDoc(doc(learner,sharedSession),{...session,learnerUid:'learner-a'}));
 console.log('PASS: turma privada, fichas, avaliações, convite com e-mail verificado, vínculo atômico, isolamento e revogação.');
 }finally{await env.cleanup()}
