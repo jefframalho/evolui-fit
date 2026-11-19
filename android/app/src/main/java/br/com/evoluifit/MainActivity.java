@@ -6,11 +6,18 @@ import android.content.pm.PackageManager;
 import android.webkit.PermissionRequest;
 import android.content.ClipData;
 import android.provider.MediaStore;
+import android.content.ContentValues;
+import android.os.Build;
+import android.os.Environment;
+import android.util.Base64;
+import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import androidx.core.content.FileProvider;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import android.os.Bundle;
 import android.content.Intent;
 import android.net.Uri;
@@ -35,6 +42,7 @@ public class MainActivity extends Activity {
     private ValueCallback<Uri[]> photoCallback;
     private Uri cameraPhoto;
     private WebView web;
+    private volatile String pageUrl;
     private LinearLayout root;
     private LinearLayout errorPanel;
     private static final String HOME = "https://jefframalho.github.io/evolui-fit/";
@@ -102,6 +110,7 @@ public class MainActivity extends Activity {
             }
         });
         web.setWebViewClient(new WebViewClient(){
+            @Override public void onPageStarted(WebView view,String url,android.graphics.Bitmap favicon){ pageUrl=url; }
             @Override public boolean shouldOverrideUrlLoading(WebView view,WebResourceRequest request){
                 Uri url=request.getUrl();
                 if("https".equals(url.getScheme())&&"jefframalho.github.io".equals(url.getHost())&&url.getPath()!=null&&url.getPath().startsWith("/evolui-fit/"))return false;
@@ -112,7 +121,70 @@ public class MainActivity extends Activity {
             @Override public void onReceivedError(WebView view,WebResourceRequest req,WebResourceError err){ if(req.isForMainFrame())showError(); }
         });
         web.setDownloadListener((url,userAgent,contentDisposition,mimeType,contentLength)->{Uri uri=Uri.parse(url);if("https".equals(uri.getScheme()))openExternal(uri);});
+        web.addJavascriptInterface(new StoryBridge(), "EvoluiFitAndroid");
         if(state==null)web.loadUrl(HOME);else web.restoreState(state);
+    }
+
+    // Ponte usada pelo botão "Baixar imagem" do Story: downloads blob: não funcionam no WebView.
+    private final class StoryBridge {
+        @JavascriptInterface public boolean saveImage(String dataUrl, String fileName){
+            String current = pageUrl;
+            if(current == null || !current.startsWith(HOME) || dataUrl == null) return false;
+            if(!dataUrl.startsWith("data:image/jpeg;base64,") || dataUrl.length() > 15000000) return false;
+            byte[] bytes;
+            try{
+                bytes = Base64.decode(dataUrl.substring(dataUrl.indexOf(',') + 1), Base64.DEFAULT);
+            }catch(IllegalArgumentException error){
+                return false;
+            }
+            String name = (fileName == null ? "evolui-fit-story.jpg" : fileName).replaceAll("[^A-Za-z0-9._-]", "_");
+            if(!name.toLowerCase().endsWith(".jpg")) name += ".jpg";
+            try{
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) return saveToGallery(name, bytes);
+                return shareLegacy(name, bytes);
+            }catch(IOException | RuntimeException error){
+                return false;
+            }
+        }
+    }
+
+    // Android 10+: grava direto em Pictures/EvoluiFit, sem permissão de armazenamento.
+    private boolean saveToGallery(String name, byte[] bytes) throws IOException {
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.Images.Media.DISPLAY_NAME, name);
+        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+        values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/EvoluiFit");
+        values.put(MediaStore.Images.Media.IS_PENDING, 1);
+        Uri uri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+        if(uri == null) return false;
+        try(OutputStream out = getContentResolver().openOutputStream(uri)){
+            if(out == null) throw new IOException("Sem saída para a imagem");
+            out.write(bytes);
+        }catch(IOException | RuntimeException error){
+            getContentResolver().delete(uri, null, null);
+            throw error;
+        }
+        ContentValues done = new ContentValues();
+        done.put(MediaStore.Images.Media.IS_PENDING, 0);
+        getContentResolver().update(uri, done, null, null);
+        return true;
+    }
+
+    // Android 8/9: sem acesso à galeria sem permissão extra; abre o seletor para salvar ou compartilhar.
+    private boolean shareLegacy(String name, byte[] bytes) throws IOException {
+        File folder = new File(getCacheDir(), "story-photos");
+        if(!folder.isDirectory() && !folder.mkdirs()) return false;
+        File file = new File(folder, name);
+        try(FileOutputStream out = new FileOutputStream(file)){
+            out.write(bytes);
+        }
+        Uri uri = FileProvider.getUriForFile(this, getPackageName()+".story-files", file);
+        Intent send = new Intent(Intent.ACTION_SEND);
+        send.setType("image/jpeg");
+        send.putExtra(Intent.EXTRA_STREAM, uri);
+        send.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        runOnUiThread(() -> startActivity(Intent.createChooser(send, "Salvar ou compartilhar imagem")));
+        return true;
     }
     private boolean trustedCameraRequest(PermissionRequest request){
         Uri origin = request.getOrigin();
