@@ -189,11 +189,26 @@ export default function WorkoutStory({workoutName,exerciseCount}:{workoutName?:s
 
   function download(){
     if(!story)return;
+    // No APK (WebView), blob: downloads são ignorados pelo listener nativo.
+    // Nesse caso a imagem é entregue à ponte nativa, que salva na galeria.
+    const bridge=(window as unknown as {EvoluiFitAndroid?:{saveImage?:(dataUrl:string,fileName:string)=>boolean}}).EvoluiFitAndroid;
+    if(bridge?.saveImage){
+      const reader=new FileReader();
+      reader.onload=()=>{
+        const saved=bridge.saveImage!(String(reader.result),story.name);
+        setMessage(saved?'Imagem salva. Confira a galeria ou a pasta Pictures/EvoluiFit.':'Não foi possível salvar a imagem. Tente novamente.');
+      };
+      reader.onerror=()=>setMessage('Não foi possível ler a imagem para salvar.');
+      reader.readAsDataURL(story);
+      return;
+    }
     const url=URL.createObjectURL(story);
     const link=document.createElement('a');
     link.href=url;
     link.download=story.name;
+    document.body.appendChild(link);
     link.click();
+    link.remove();
     setTimeout(()=>URL.revokeObjectURL(url),30000);
   }
 
